@@ -10,18 +10,13 @@ export const env = {
   get supabaseUrl() {
     return required("SUPABASE_URL").replace(/\/+$/, "");
   },
-  get supabaseAnonKey() {
-    return required("NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  },
   get supabaseServiceRoleSecret() {
     return required("SUPABASE_SERVICE_ROLE_SECRET");
   },
-  get internalGatewaySecret() {
-    return required("INTERNAL_GATEWAY_SECRET");
+  get supabaseAnonKey() {
+    return required("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   },
-  get weeklyUsageLimit() {
-    const raw = process.env["WEEKLY_USAGE_LIMIT"];
-    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1000;
+  get mediaStorageBucket() {
+    return process.env["MEDIA_STORAGE_BUCKET"] ?? "media";
   },
 };

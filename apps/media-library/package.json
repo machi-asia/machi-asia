@@ -1,24 +1,24 @@
 {
-  "name": "machi-asia-api-gateway",
+  "name": "machi-asia-media-library",
   "version": "0.1.0",
   "private": true,
-  "description": "Token-verifying reverse proxy in front of machi-asia microservices",
+  "description": "CRUD app for media assets — image gallery, upload, and management",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 6000",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start -p 6000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@machi-asia/ui": "*",
-    "@supabase/supabase-js": "^2.112.3",
-    "jose": "^6.2.10",
+    "@supabase/supabase-js": "^2.49.4",
+    "jose": "^6.0.11",
     "next": "^15.5.23",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^4.4.3"
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

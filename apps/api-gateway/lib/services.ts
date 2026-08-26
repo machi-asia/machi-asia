@@ -18,7 +18,7 @@ export interface ServiceDefinition {
  * registered service. The middleware matcher excludes them, so a colliding
  * prefix would silently never match.
  */
-export const RESERVED_PREFIXES = ["/api/health"];
+export const RESERVED_PREFIXES = ["/api/health", "/api/usage"];
 
 /**
  * Catalog of known machi-asia microservices. Structural config lives here;

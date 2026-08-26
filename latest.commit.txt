@@ -1,1 +1,15 @@
+refactor(api-gateway,media-library): remove data-controller, build Usage + Media Library UIs
 
+- apps/data-controller: removed entirely (replaced by direct Supabase access per app)
+- apps/media-library: new full media library app (Next.js 15, Supabase Realtime, direct DB + Storage access)
+- apps/media-library/components/MediaLibraryModal: upload, gallery/list toggle, search, soft-delete
+- apps/media-library/app/api/media: GET (list), POST (upload to Storage + insert metadata)
+- apps/media-library/app/api/media/[id]: DELETE (soft-delete with ownership check)
+- apps/api-gateway/components/UsageCard: live usage stats via Supabase Realtime (usage_limits INSERT subscription)
+- apps/api-gateway/app/page: renders UsageCard dashboard
+- apps/api-gateway/lib/supabase-browser: browser-side Supabase client for Realtime subscriptions
+- apps/api-gateway/lib/services.ts: removed DATA_CONTROLLER from SERVICE_REGISTRY
+- packages/media-library: deleted skeleton (moved to apps/media-library)
+- AGENTS.md: removed data-controller access rule
+- README.md: removed data-controller, added media-library + usage dashboard docs
+- .github/dependabot.yml: removed data-controller entry
