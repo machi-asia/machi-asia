@@ -1,0 +1,54 @@
+import { Tool } from "./index";
+
+export interface AskQuestionArgs {
+  question: string;
+  options: string[];
+  allowMultiple?: boolean;
+}
+
+export const askQuestionTool: Tool = {
+  declaration: {
+    name: "askQuestion",
+    description:
+      "Ask the user a clarifying question or present options for follow-up topics. Renders interactive selectable choice buttons in the chat UI for user response.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        question: {
+          type: "STRING",
+          description: "The prompt or question to ask the user.",
+        },
+        options: {
+          type: "ARRAY",
+          items: { type: "STRING" },
+          description: "List of selectable option strings for the user to pick from.",
+        },
+        allowMultiple: {
+          type: "BOOLEAN",
+          description:
+            "Set true to allow the user to select multiple options before submitting.",
+        },
+      },
+      required: ["question", "options"],
+    },
+  },
+  execute: async (args: Record<string, unknown>) => {
+    try {
+      const question = (args.question as string) || "Please select an option:";
+      const options = Array.isArray(args.options) ? (args.options as string[]) : [];
+      const allowMultiple = Boolean(args.allowMultiple);
+
+      const payload = {
+        type: "interactive_options",
+        question,
+        options,
+        allowMultiple,
+      };
+
+      return JSON.stringify(payload);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to execute askQuestion tool.";
+      return JSON.stringify({ error: message });
+    }
+  },
+};

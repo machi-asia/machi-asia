@@ -36,6 +36,12 @@ export const SERVICE_REGISTRY: ServiceDefinition[] = [
     envVar: "AUTH_SERVICE_URL",
     devPort: 4000,
   },
+  {
+    key: "ROSE",
+    prefix: "/api/rose",
+    envVar: "ROSE_SERVICE_URL",
+    devPort: 5000,
+  },
 ];
 
 /** Throws when two services collide on key, prefix, or env var name. */

@@ -1,15 +1,20 @@
-refactor(api-gateway,media-library): remove data-controller, build Usage + Media Library UIs
+feat(auth): enforce login across all frontend apps with shared auth package
 
-- apps/data-controller: removed entirely (replaced by direct Supabase access per app)
-- apps/media-library: new full media library app (Next.js 15, Supabase Realtime, direct DB + Storage access)
-- apps/media-library/components/MediaLibraryModal: upload, gallery/list toggle, search, soft-delete
-- apps/media-library/app/api/media: GET (list), POST (upload to Storage + insert metadata)
-- apps/media-library/app/api/media/[id]: DELETE (soft-delete with ownership check)
-- apps/api-gateway/components/UsageCard: live usage stats via Supabase Realtime (usage_limits INSERT subscription)
-- apps/api-gateway/app/page: renders UsageCard dashboard
-- apps/api-gateway/lib/supabase-browser: browser-side Supabase client for Realtime subscriptions
-- apps/api-gateway/lib/services.ts: removed DATA_CONTROLLER from SERVICE_REGISTRY
-- packages/media-library: deleted skeleton (moved to apps/media-library)
-- AGENTS.md: removed data-controller access rule
-- README.md: removed data-controller, added media-library + usage dashboard docs
-- .github/dependabot.yml: removed data-controller entry
+- packages/auth: new shared auth package — AuthProvider, useAuth hook, token-store (localStorage), and AuthGate component
+- apps/auth/app/api/auth/guest/route.ts: POST /api/auth/guest endpoint calling signInAnonymously()
+- packages/ui/src/lib/Auth/AuthModal.tsx: replace username field with email, add optional onGuest prop with "Continue as guest" button
+- packages/ui/src/lib/Auth/types.ts: LoginCredentials.username → LoginCredentials.email; RegisterDetails updated accordingly; AuthUser.username now optional
+- apps/rose/components/Providers.tsx: AuthGate wrapper using NEXT_PUBLIC_AUTH_API_URL
+- apps/rose/components/UsageBar.tsx: use useAuth() from @machi-asia/auth instead of Supabase browser client for user ID
+- apps/rose/app/layout.tsx: wrap children in Providers component
+- apps/tween/components/Providers.tsx: AuthGate wrapper
+- apps/tween/app/layout.tsx: wrap children in Providers component
+- apps/media-library/components/Providers.tsx: AuthGate wrapper
+- apps/media-library/app/layout.tsx: wrap children in Providers component
+- apps/media-library/components/MediaLibraryModal.tsx: replace localStorage.getItem("sb-access-token") with loadTokens() from @machi-asia/auth
+- apps/*/package.json: add @machi-asia/auth as dependency to rose, tween, media-library
+- apps/*/.env.example: add NEXT_PUBLIC_AUTH_API_URL to rose, tween, media-library
+- packages/ui: add lint and lint:style no-op scripts; fix Navbar username references
+- packages/auth: add test no-op script
+- apps/rose, apps/tween: add test and lint:style no-op scripts
+- AGENTS.md: add CI pipeline enforcement duties — required scripts per workspace, local pipeline commands, full monorepo validation gate

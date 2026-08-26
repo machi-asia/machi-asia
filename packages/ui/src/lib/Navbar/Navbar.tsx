@@ -82,7 +82,7 @@ function Avatar({ user }: { user: AuthUser }) {
   }
   return (
     <span className={styles.avatarFallback} aria-hidden="true">
-      {initialsOf(user.displayName ?? user.username)}
+      {initialsOf(user.displayName ?? user.username ?? '')}
     </span>
   )
 }
@@ -102,7 +102,7 @@ function UserMenu({ user, onSignOut }: { user: AuthUser; onSignOut?: () => void 
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
-  const name = user.displayName ?? user.username
+  const name = user.displayName ?? user.username ?? ''
 
   return (
     <div ref={rootRef} className={styles.userWrap}>
@@ -411,7 +411,7 @@ export function Navbar({
                         <>
                           <div className={styles.drawerUser}>
                             <Avatar user={user} />
-                            <span className={styles.drawerUserName}>{user.displayName ?? user.username}</span>
+                            <span className={styles.drawerUserName}>{user.displayName ?? user.username ?? ''}</span>
                           </div>
                           <button type="button" className={cx(styles.signOutBtn, styles.block)} onClick={() => onSignOut?.()}>
                             Sign out

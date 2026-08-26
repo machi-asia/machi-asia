@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveRoute } from "@/lib/routes";
 import { GATEWAY_HEADER_PREFIX, gate, gatewaySecret, identityHeaders } from "@/lib/auth-gate";
-import { checkAndIncrementUsage } from "@/lib/usage";
+import { checkAndIncrementUsage, checkAndIncrementRoseUsage } from "@/lib/usage";
 
 export const config = {
   matcher: ["/((?!api/health|api/usage|_next/static|_next/image|favicon.ico).*)"],
@@ -32,13 +32,16 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   // Enforce weekly usage limits for authenticated users on non-public routes.
   if (result.identity) {
     try {
-      const usage = await checkAndIncrementUsage(result.identity.sub);
+      const isRoseRoute = route.serviceKey === "ROSE";
+      const usage = isRoseRoute
+        ? await checkAndIncrementRoseUsage(result.identity.sub, result.identity.roles)
+        : await checkAndIncrementUsage(result.identity.sub);
+
       if (!usage.allowed) {
-        return jsonError(
-          429,
-          "rate_limited",
-          `Weekly usage limit of ${usage.limit} requests exceeded (${usage.count}/${usage.limit}). Resets next week.`,
-        );
+        const limitDesc = isRoseRoute
+          ? `Rose weekly usage limit of ${usage.limit} requests exceeded (${usage.count}/${usage.limit}). Resets next week.`
+          : `Weekly usage limit of ${usage.limit} requests exceeded (${usage.count}/${usage.limit}). Resets next week.`;
+        return jsonError(429, "rate_limited", limitDesc);
       }
     } catch (err) {
       console.error("[gateway] usage check failed, allowing request:", err);

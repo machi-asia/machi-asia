@@ -11,6 +11,7 @@ function mockQueryChain(result: { data: unknown; error: unknown; count?: number 
   const chain = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    is: jest.fn().mockReturnThis(),
     single: jest.fn().mockResolvedValue(result),
     update: jest.fn().mockReturnThis(),
     insert: jest.fn().mockResolvedValue(result),

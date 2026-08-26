@@ -8,9 +8,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "lint:style": "echo 'No style lint configured yet' && exit 0",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
+    "@machi-asia/auth": "*",
     "@machi-asia/ui": "*",
     "next": "^15.5.23",
     "react": "^19.2.8",

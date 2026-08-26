@@ -31,6 +31,7 @@ export async function checkAndIncrementUsage(userId: string): Promise<UsageCheck
     .select("count, limit")
     .eq("user_id", userId)
     .eq("week", week)
+    .is("service_key", null)
     .single();
 
   if (existing) {
@@ -40,9 +41,10 @@ export async function checkAndIncrementUsage(userId: string): Promise<UsageCheck
 
     const { data: updated } = await supabase
       .from("usage_limits")
-      .update({ count: existing.count + 1 })
+      .update({ count: existing.count + 1, updated_at: new Date().toISOString() })
       .eq("user_id", userId)
       .eq("week", week)
+      .is("service_key", null)
       .select("count")
       .single();
 
@@ -59,10 +61,74 @@ export async function checkAndIncrementUsage(userId: string): Promise<UsageCheck
     week,
     count: 1,
     limit,
+    service_key: null,
   });
 
   if (error && error.code === "23505") {
     return checkAndIncrementUsage(userId);
+  }
+
+  return { allowed: true, count: 1, limit, week };
+}
+
+/**
+ * Role-based usage check for the Rose AI service.
+ * Admins: unlimited (returns allowed=true always).
+ * Users:  req Rose WEEKLY_LIMIT_USER per week.
+ */
+export async function checkAndIncrementRoseUsage(
+  userId: string,
+  roles: string[] = []
+): Promise<UsageCheck> {
+  const week = currentWeek();
+
+  if (roles.includes("admin")) {
+    return { allowed: true, count: 0, limit: Infinity, week };
+  }
+
+  const limit = env.roseWeeklyLimitUser;
+  const supabase = getSupabase();
+
+  const { data: existing } = await supabase
+    .from("usage_limits")
+    .select("count, limit")
+    .eq("user_id", userId)
+    .eq("week", week)
+    .eq("service_key", "ROSE")
+    .single();
+
+  if (existing) {
+    if (existing.count >= (existing.limit ?? limit)) {
+      return { allowed: false, count: existing.count, limit: existing.limit ?? limit, week };
+    }
+
+    const { data: updated } = await supabase
+      .from("usage_limits")
+      .update({ count: existing.count + 1, updated_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .eq("week", week)
+      .eq("service_key", "ROSE")
+      .select("count")
+      .single();
+
+    return {
+      allowed: true,
+      count: updated?.count ?? existing.count + 1,
+      limit: existing.limit ?? limit,
+      week,
+    };
+  }
+
+  const { error } = await supabase.from("usage_limits").insert({
+    user_id: userId,
+    week,
+    count: 1,
+    limit,
+    service_key: "ROSE",
+  });
+
+  if (error && error.code === "23505") {
+    return checkAndIncrementRoseUsage(userId, roles);
   }
 
   return { allowed: true, count: 1, limit, week };
@@ -81,6 +147,7 @@ export async function getUsage(userId: string): Promise<UsageCheck> {
     .select("count, limit")
     .eq("user_id", userId)
     .eq("week", week)
+    .is("service_key", null)
     .single();
 
   if (!data) {

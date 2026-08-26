@@ -27,18 +27,67 @@ Excluded: pure styling tweaks and internal refactors with no behavioral surface.
 - Microservices and deployable web applications belong in `apps/*`.
 - Use Turborepo commands (`npm run build`, `npm run test`, `npm run lint`, `npm run typecheck`) to ensure all workspaces remain passing.
 
-### 4. Vercel Deployment Assumption
+### 4. CI Pipeline Enforcement (Local Pre-flight)
+
+Every change **must** pass the equivalent of both CI pipelines locally before completing a task. These pipelines are defined in `.github/workflows/pr-pipeline-web.yml` and `.github/workflows/pr-pipeline-service.yml`.
+
+#### Required Scripts Per Workspace
+
+| Workspace | `lint` | `typecheck` | `test` | `build` | `lint:style` |
+|:--|:--|:--|:--|:--|:--|
+| `apps/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
+| `apps/tween` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
+| `apps/media-library` | ✅ | ✅ | ✅ | ✅ | — |
+| `apps/api-gateway` | ✅ | ✅ | ✅ | ✅ | — |
+| `apps/auth` | ✅ | ✅ | ✅ | ✅ | — |
+| `packages/ui` | ✅ *add if missing* | ✅ | ✅ | ✅ | ✅ *add if missing* |
+| `packages/auth` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
+
+- **`lint:style`** is only required for web app workspaces (`apps/rose`, `apps/tween`, `apps/media-library`) and `packages/ui`. Use `stylelint` or `prettier --check` as appropriate. Other packages skip this step.
+- If a workspace is missing a required script above, **add it** (even as a no-op pass-through) so Turborepo can run uniformly. For example, `packages/auth` with no tests should have `"test": "echo 'No tests yet' && exit 0"`.
+
+#### Local Pipeline Commands
+
+**Step 1 — Clean install** (mimics `npm ci` in CI):
+```powershell
+npm install
+```
+
+**Step 2 — Run the web pipeline equivalent** (for apps/rose, apps/tween, apps/media-library, packages/ui):
+```powershell
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+**Step 3 — Run the service pipeline equivalent** (for apps/api-gateway, apps/auth):
+```powershell
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+**Step 4 — Run the full monorepo validation** (final gate before ending a task):
+```powershell
+npx turbo run lint typecheck test build
+```
+
+If any step fails, fix the errors before proceeding. Never end a session or commit with failing checks.
+
+### 5. Vercel Deployment Assumption
 
 Every app in `apps/*` is deployed to **Vercel** as its own Vercel project. Do not assume any app runs outside of Vercel in production. All configuration, build outputs, and environment variable strategies must be compatible with the Vercel platform.
 
-### 5. Document All Environment Variables
+### 6. Document All Environment Variables
 
 Every project with environment variable requirements **must** include a `.env.example` file (at the project root) that lists every variable the app depends on, with inline comments explaining each one. This file must be kept in sync whenever env vars are added, renamed, or removed.
 
 - Use `.env.example` as the canonical reference (never commit real secrets).
 - Never leave a required env var undocumented.
 
-### 6. Site URL Resolution
+### 7. Site URL Resolution
 
 When generating links, redirects, or any reference to the site's public URL, always resolve from the `VERCEL_PROJECT_PRODUCTION_URL` environment variable first. If that variable is unset, fall back to `localhost` with the app's local dev port.
 

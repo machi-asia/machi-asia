@@ -37,6 +37,8 @@
     "dev": "next dev playground",
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/inject-css.mjs",
     "typecheck": "tsc --noEmit",
+    "lint": "echo 'No ESLint configured yet' && exit 0",
+    "lint:style": "echo 'No style lint configured yet' && exit 0",
     "test": "vitest run",
     "test:watch": "vitest",
     "preview:pack": "npm run build && npm pack --dry-run"

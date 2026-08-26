@@ -4,14 +4,16 @@
   "private": true,
   "description": "CRUD app for media assets — image gallery, upload, and management",
   "scripts": {
-    "dev": "next dev -p 6000",
+    "dev": "next dev -p 6100",
     "build": "next build",
-    "start": "next start -p 6000",
+    "start": "next start -p 6100",
     "lint": "eslint .",
+    "lint:style": "echo 'No style lint configured yet' && exit 0",
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "@machi-asia/auth": "*",
     "@machi-asia/ui": "*",
     "@supabase/supabase-js": "^2.49.4",
     "jose": "^6.0.11",

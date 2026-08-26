@@ -8,6 +8,7 @@ export interface GatewayRoute {
   upstream: string;
   requiredRoles: string[];
   isPublic: boolean;
+  serviceKey: string;
 }
 
 let cached: GatewayRoute[] | null = null;
@@ -64,6 +65,7 @@ export function getRoutes(): GatewayRoute[] {
       upstream,
       requiredRoles: service.requiredRoles ?? [],
       isPublic: service.isPublic ?? false,
+      serviceKey: service.key,
     });
   }
 

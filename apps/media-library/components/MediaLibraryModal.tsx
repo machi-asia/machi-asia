@@ -42,9 +42,11 @@ function formatDate(iso: string): string {
   });
 }
 
+import { loadTokens } from "@machi-asia/auth";
+
 function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("sb-access-token");
+  return loadTokens()?.accessToken ?? null;
 }
 
 export function MediaLibraryModal({

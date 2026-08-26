@@ -16,11 +16,12 @@ export interface AuthModalProps {
   onLogin?: (credentials: LoginCredentials) => void | Promise<unknown>
   onRegister?: (details: RegisterDetails) => void | Promise<unknown>
   onOAuthLogin?: (provider: OAuthProvider) => void | Promise<unknown>
+  onGuest?: () => void | Promise<unknown>
   authError?: string | null
   initialMode?: AuthMode
 }
 
-type Pending = Exclude<AuthMode | OAuthProvider, null> | null
+type Pending = AuthMode | OAuthProvider | 'guest' | null
 
 export function AuthModal({
   open,
@@ -28,6 +29,7 @@ export function AuthModal({
   onLogin,
   onRegister,
   onOAuthLogin,
+  onGuest,
   authError,
   initialMode = 'login',
 }: AuthModalProps) {
@@ -71,14 +73,13 @@ export function AuthModal({
     if (mode === 'login') {
       void run('login', () =>
         onLogin?.({
-          username: String(data.get('username') ?? ''),
+          email: String(data.get('email') ?? ''),
           password: String(data.get('password') ?? ''),
         }),
       )
     } else {
       void run('register', () =>
         onRegister?.({
-          username: String(data.get('username') ?? ''),
           email: String(data.get('email') ?? ''),
           password: String(data.get('password') ?? ''),
         }),
@@ -114,15 +115,9 @@ export function AuthModal({
 
       <form key={mode} className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Username</span>
-          <input name="username" className={styles.input} autoComplete="username" required disabled={busy} />
+          <span className={styles.fieldLabel}>Email</span>
+          <input name="email" type="email" className={styles.input} autoComplete="email" required disabled={busy} />
         </label>
-        {mode === 'register' && (
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Email</span>
-            <input name="email" type="email" className={styles.input} autoComplete="email" required disabled={busy} />
-          </label>
-        )}
         <label className={styles.field}>
           <span className={styles.fieldLabel}>Password</span>
           <input
@@ -174,6 +169,23 @@ export function AuthModal({
           GitHub
         </button>
       </div>
+
+      {onGuest && (
+        <>
+          <div className={styles.divider}>
+            <span>or</span>
+          </div>
+          <Button
+            variant="secondary"
+            fullWidth
+            loading={pending === 'guest'}
+            disabled={busy}
+            onClick={() => void run('guest', () => onGuest())}
+          >
+            Continue as guest
+          </Button>
+        </>
+      )}
     </Modal>
   )
 }

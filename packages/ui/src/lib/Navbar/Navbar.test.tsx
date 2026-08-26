@@ -79,7 +79,7 @@ describe('Navbar primary variant', () => {
     render(<Navbar {...base} variant="primary" />)
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
     const dialog = await screen.findByRole('dialog')
-    expect(within(dialog).getByLabelText('Username')).toBeInTheDocument()
+    expect(within(dialog).getByLabelText('Email')).toBeInTheDocument()
     expect(within(dialog).getByLabelText('Password')).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'Google' })).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'GitHub' })).toBeInTheDocument()
@@ -90,10 +90,10 @@ describe('Navbar primary variant', () => {
     render(<Navbar {...base} variant="primary" onLogin={onLogin} />)
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
     const dialog = await screen.findByRole('dialog')
-    fireEvent.change(within(dialog).getByLabelText('Username'), { target: { value: 'amy' } })
+    fireEvent.change(within(dialog).getByLabelText('Email'), { target: { value: 'amy@example.com' } })
     fireEvent.change(within(dialog).getByLabelText('Password'), { target: { value: 'secret123' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Log in' }))
-    await waitFor(() => expect(onLogin).toHaveBeenCalledWith({ username: 'amy', password: 'secret123' }))
+    await waitFor(() => expect(onLogin).toHaveBeenCalledWith({ email: 'amy@example.com', password: 'secret123' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
@@ -118,7 +118,7 @@ describe('Navbar primary variant', () => {
       <Navbar
         {...base}
         variant="primary"
-        user={{ username: 'amyk', displayName: 'Amy Kim' }}
+        user={{ email: 'amy@example.com', username: 'amyk', displayName: 'Amy Kim' }}
         onSignOut={onSignOut}
       />,
     )
@@ -131,7 +131,7 @@ describe('Navbar primary variant', () => {
   })
 
   it('falls back to initials when no avatar image is provided', () => {
-    const { container } = render(<Navbar {...base} variant="primary" user={{ username: 'amyk' }} />)
+    const { container } = render(<Navbar {...base} variant="primary" user={{ email: 'amy@example.com', username: 'amyk' }} />)
     expect(within(container.querySelector('nav')!).getByText('AM')).toBeInTheDocument()
   })
 

@@ -24,4 +24,15 @@ export const env = {
     const parsed = raw ? Number.parseInt(raw, 10) : NaN;
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1000;
   },
+  get roseWeeklyLimitAdmin() {
+    const raw = process.env["ROSE_WEEKLY_LIMIT_ADMIN"];
+    if (raw === "unlimited" || raw === "0") return Infinity;
+    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : Infinity;
+  },
+  get roseWeeklyLimitUser() {
+    const raw = process.env["ROSE_WEEKLY_LIMIT_USER"];
+    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 200;
+  },
 };

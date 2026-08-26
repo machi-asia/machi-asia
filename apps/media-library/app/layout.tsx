@@ -1,4 +1,5 @@
 import "@machi-asia/ui/styles.css";
+import { Providers } from "@/components/Providers";
 
 export const metadata = {
   title: "Media Library — Machi Asia",
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
