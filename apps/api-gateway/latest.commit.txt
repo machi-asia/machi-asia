@@ -1,6 +1,1 @@
-refactor(gateway): rename route prefix convention to /api/<service>
 
-- gateway: switch service prefixes from /svc/<name> to /api/<name>; auth service now lives at /api/auth
-- gateway: reserve gateway-owned prefixes (/api/health) in assertRegistryConsistent so no service can shadow endpoints excluded from the middleware matcher
-- tests: align routes/middleware/proxy/catch-all suites with the new prefix scheme and cover reserved-prefix rejection
-- docs: refresh README registry examples with the /api/<service> convention
