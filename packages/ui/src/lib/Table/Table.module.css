@@ -1,0 +1,210 @@
+.wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--mui-text-color);
+}
+
+.caption {
+  caption-side: bottom;
+  padding-top: 12px;
+  font-size: 0.82rem;
+  color: var(--mui-text-muted);
+  text-align: left;
+}
+
+.th {
+  text-align: left;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--mui-text-muted);
+  background: var(--mui-bg);
+}
+
+.md .th,
+.md .td {
+  padding: 12px 16px;
+}
+
+.sm .th,
+.sm .td {
+  padding: 8px 12px;
+}
+
+.stickyTh {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: inset 0 -1px 0 var(--mui-border);
+}
+
+.sortableTh .sortButton {
+  min-height: 0;
+}
+
+.sortButton {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  transition: color var(--mui-duration-fast) var(--mui-ease-out);
+}
+
+.sortButton:hover {
+  color: var(--mui-primary);
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid var(--mui-primary);
+  outline-offset: -2px;
+}
+
+.sortIcon {
+  opacity: 0.35;
+  transition: transform var(--mui-duration-normal) var(--mui-ease-spring), opacity var(--mui-duration-fast) ease;
+}
+
+.sortedTh .sortIcon {
+  opacity: 1;
+  color: var(--mui-primary);
+}
+
+.sortDesc .sortIcon {
+  transform: rotate(180deg);
+}
+
+.td {
+  vertical-align: middle;
+}
+
+.tfoot {
+  font-weight: 700;
+  color: var(--mui-text-color);
+  border-top: 2px solid var(--mui-border-strong);
+}
+
+.md .tfoot {
+  padding: 12px 16px;
+}
+
+.sm .tfoot {
+  padding: 8px 12px;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.default {
+  border: 1px solid var(--mui-border);
+  border-radius: var(--mui-radius-md);
+}
+
+.default .th {
+  box-shadow: inset 0 -1px 0 var(--mui-border);
+}
+
+.striped tbody tr:nth-child(even) {
+  background: var(--mui-surface);
+}
+
+.bordered {
+  border: 1px solid var(--mui-border);
+  border-radius: var(--mui-radius-md);
+}
+
+.bordered .th,
+.bordered .td,
+.bordered .tfoot {
+  border: 1px solid var(--mui-border);
+}
+
+.minimal .th {
+  box-shadow: none;
+}
+
+.hoverRow {
+  animation: row-in var(--mui-duration-normal) var(--mui-ease-out) backwards;
+  transition: background-color var(--mui-duration-fast) var(--mui-ease-out);
+}
+
+@media (hover: hover) {
+  .hoverRow:hover {
+    background: var(--mui-primary-soft);
+  }
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:active {
+  background: var(--mui-primary-soft);
+}
+
+.centerCell {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--mui-text-muted);
+}
+
+.emptyCell {
+  font-style: italic;
+}
+
+.spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid var(--mui-border-strong);
+  border-top-color: var(--mui-primary);
+  animation: table-spin 0.7s linear infinite;
+}
+
+@keyframes table-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hide-md {
+    display: none;
+  }
+}

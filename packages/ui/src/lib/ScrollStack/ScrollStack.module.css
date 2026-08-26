@@ -1,0 +1,29 @@
+.stack {
+  position: relative;
+}
+
+.layer {
+  position: sticky;
+  top: 0;
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--mui-radius-lg);
+  box-shadow: var(--mui-shadow-lg);
+  transform-origin: center top;
+  transform: perspective(1200px)
+    scale(calc(1 - var(--mui-depth, 0) * var(--mui-stack-scale)))
+    translateY(calc(var(--mui-depth, 0) * -7%));
+  filter: brightness(calc(1 - var(--mui-cover, 0) * var(--mui-stack-dim)));
+  will-change: transform, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-force-motion]) .card {
+    transform: none;
+    filter: none;
+  }
+}

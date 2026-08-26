@@ -1,0 +1,12 @@
+feature(auth-service): scaffold Supabase-backed token issuer service
+
+- auth-api: add signup/login/token-refresh/logout/user-info endpoints returning an OAuth-style token envelope backed by hosted Supabase Auth (GoTrue)
+- auth-api: refresh flow calls GoTrue /token grant directly to stay server-side stateless
+- admin: add PATCH /api/admin/users/:id/roles to manage raw_app_meta_data.roles, guarded by constant-time x-admin-secret comparison
+- db: apply custom access token hook public.custom_access_token_hook promoting raw_app_meta_data.roles into the top-level JWT roles claim; execute granted only to supabase_auth_admin
+- db: enable RLS on public.site_data with a public-read SELECT policy (anon/authenticated); writes remain service-role only
+- security: user info verified locally against asymmetric JWKS instead of network validation; service-role secret confined to admin/logout paths
+- health: add unauthenticated /api/health endpoint used by CI smoke tests
+- tests: add 18 Jest tests covering login/token/admin flows, validation errors, and JWKS verification round-trips with real ES256 keypairs
+- ci: consume org reusable pr-pipeline-service.yml (lint/typecheck/Jest shards/build/Vercel preview/healthcheck/rollback)
+- docs: document endpoints, env vars, role-claim model, and one-time dashboard step to enable the access token hook

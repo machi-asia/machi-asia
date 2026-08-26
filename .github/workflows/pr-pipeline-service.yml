@@ -1,0 +1,172 @@
+name: PR Pipeline (Service)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version used by every job
+        required: false
+        type: string
+        default: '22'
+      working-directory:
+        description: Application root inside the calling repository
+        required: false
+        type: string
+        default: '.'
+      shard-count:
+        description: Number of parallel Jest shards
+        required: false
+        type: number
+        default: 5
+      healthcheck-path:
+        description: Endpoint probed against the preview deployment
+        required: false
+        type: string
+        default: /api/health
+      healthcheck-timeout-seconds:
+        description: Per-attempt curl timeout for the health probe
+        required: false
+        type: number
+        default: 10
+    secrets:
+      VERCEL_TOKEN:
+        description: Vercel token with deployment rights to the project
+        required: true
+      VERCEL_ORG_ID:
+        description: Vercel team/scope id
+        required: true
+      VERCEL_PROJECT_ID:
+        description: Vercel project id for the calling repository
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan-matrix:
+    name: Plan Checks Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - id: build
+        shell: bash
+        run: |
+          SHARDS='${{ inputs.shard-count }}'
+          {
+            printf '[\n'
+            printf '{"name":"ESLint","command":"npm run lint"},\n'
+            printf '{"name":"Typecheck","command":"npm run typecheck"},\n'
+            i=1
+            while [ "$i" -le "$SHARDS" ]; do
+              if [ "$i" -lt "$SHARDS" ]; then
+                printf '{"name":"Jest (shard %s/%s)","command":"npm test -- --shard=%s/%s"},\n' "$i" "$SHARDS" "$i" "$SHARDS"
+              else
+                printf '{"name":"Jest (shard %s/%s)","command":"npm test -- --shard=%s/%s"}\n' "$i" "$SHARDS" "$i" "$SHARDS"
+              fi
+              i=$((i + 1))
+            done
+            printf ']\n'
+          } > matrix.json
+          echo "matrix=$(jq -c . matrix.json)" >> "$GITHUB_OUTPUT"
+
+  checks:
+    name: ${{ matrix.name }}
+    needs: plan-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory == '.' && 'package-lock.json' || format('{0}/package-lock.json', inputs.working-directory) }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
+
+  build:
+    name: Build
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory == '.' && 'package-lock.json' || format('{0}/package-lock.json', inputs.working-directory) }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+
+  deploy-preview:
+    name: Vercel Preview
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy preview
+        uses: ./.github/actions/vercel-preview
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  smoke-test:
+    name: Health Check Smoke Test
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PROBE_URL: ${{ needs.deploy-preview.outputs.url }}${{ inputs.healthcheck-path }}
+    steps:
+      - name: Verify health endpoint on preview
+        shell: bash
+        run: |
+          echo "Probing $PROBE_URL"
+          curl -fsS \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            --max-time '${{ inputs.healthcheck-timeout-seconds }}' \
+            -o /dev/null \
+            -w 'HTTP %{http_code}\n' \
+            "$PROBE_URL"
+
+  rollback:
+    name: Rollback Failed Deployment
+    needs: [deploy-preview, smoke-test]
+    if: ${{ failure() && needs.deploy-preview.outputs.url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Roll back failed preview
+        uses: ./.github/actions/vercel-rollback
+        with:
+          node-version: ${{ inputs.node-version }}
+          deployment-url: ${{ needs.deploy-preview.outputs.url }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}

@@ -1,0 +1,23 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.content {
+  transform: rotate(calc(var(--mui-progress, 0) * var(--mui-rotate-angle, 180deg)));
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-force-motion]) .content {
+    transform: none;
+  }
+}

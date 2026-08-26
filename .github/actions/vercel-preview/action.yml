@@ -1,0 +1,65 @@
+name: Vercel Preview Deploy
+description: Installs dependencies and deploys a prebuilt preview to Vercel
+inputs:
+  node-version:
+    description: Node.js version used to run the Vercel CLI
+    required: false
+    default: '22'
+  working-directory:
+    description: Application root inside the repository
+    required: false
+    default: '.'
+  vercel-token:
+    description: Vercel token with deployment rights to the project
+    required: true
+  vercel-org-id:
+    description: Vercel team/scope id
+    required: true
+  vercel-project-id:
+    description: Vercel project id
+    required: true
+outputs:
+  url:
+    description: Deployed preview URL
+    value: ${{ steps.deploy.outputs.url }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    - name: Install dependencies
+      shell: bash
+      run: |
+        cd "${{ inputs.working-directory }}"
+        npm ci
+    - name: Pull Vercel environment
+      shell: bash
+      env:
+        VERCEL_TOKEN: ${{ inputs.vercel-token }}
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
+      run: |
+        cd "${{ inputs.working-directory }}"
+        npx vercel@latest pull --yes --environment=preview --token="$VERCEL_TOKEN"
+    - name: Build with Vercel
+      shell: bash
+      env:
+        VERCEL_TOKEN: ${{ inputs.vercel-token }}
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
+      run: |
+        cd "${{ inputs.working-directory }}"
+        npx vercel@latest build --token="$VERCEL_TOKEN"
+    - id: deploy
+      name: Deploy preview
+      shell: bash
+      env:
+        VERCEL_TOKEN: ${{ inputs.vercel-token }}
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
+      run: |
+        cd "${{ inputs.working-directory }}"
+        URL=$(npx vercel@latest deploy --prebuilt --token="$VERCEL_TOKEN")
+        echo "Deployed to $URL"
+        echo "url=$URL" >> "$GITHUB_OUTPUT"

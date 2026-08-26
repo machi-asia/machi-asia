@@ -1,0 +1,50 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  height: 100%;
+  transform: scale(calc(1.08 - var(--mui-progress, 0) * 0.08));
+}
+
+.curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  background: var(--mui-surface);
+  box-shadow: var(--mui-shadow-lg);
+  will-change: transform;
+}
+
+.up {
+  transform: translateY(calc(var(--mui-progress, 0) * -101%));
+}
+
+.down {
+  transform: translateY(calc(var(--mui-progress, 0) * 101%));
+}
+
+.left {
+  transform: translateX(calc(var(--mui-progress, 0) * -101%));
+}
+
+.right {
+  transform: translateX(calc(var(--mui-progress, 0) * 101%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Park the cover in its fully-wiped position so any content on it stays
+     reachable while the section beneath is revealed instantly. */
+  html:not([data-force-motion]) .section {
+    --mui-progress: 1 !important;
+  }
+}

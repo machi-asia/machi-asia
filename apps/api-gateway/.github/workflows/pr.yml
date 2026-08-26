@@ -1,0 +1,14 @@
+name: PR Pipeline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  pipeline:
+    uses: machi-asia/.github/.github/workflows/pr-pipeline-service.yml@main
+    with:
+      node-version: "22"
+      healthcheck-path: /api/health
+    secrets: inherit

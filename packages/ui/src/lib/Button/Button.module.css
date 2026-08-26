@@ -1,0 +1,122 @@
+.button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: var(--mui-radius-md);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--mui-duration-fast) var(--mui-ease-out),
+    box-shadow var(--mui-duration-fast) var(--mui-ease-out),
+    background-color var(--mui-duration-fast) var(--mui-ease-out),
+    color var(--mui-duration-fast) var(--mui-ease-out);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--mui-color-focus, var(--mui-primary));
+  outline-offset: 2px;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sm {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 0.875rem;
+}
+
+.md {
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 0.95rem;
+}
+
+.lg {
+  min-height: 52px;
+  padding: 0 28px;
+  font-size: 1.05rem;
+}
+
+.primary {
+  background: var(--mui-primary);
+  color: var(--mui-on-primary);
+  box-shadow: var(--mui-shadow-sm);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--mui-primary-strong);
+  box-shadow: var(--mui-shadow-md);
+  transform: translateY(-1px);
+}
+
+.secondary {
+  background: var(--mui-bg);
+  color: var(--mui-text-color);
+  box-shadow: inset 0 0 0 1px var(--mui-border-strong);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--mui-surface);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--mui-border-strong), var(--mui-shadow-sm);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--mui-primary);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--mui-primary-soft);
+}
+
+.danger {
+  background: var(--mui-danger);
+  color: var(--mui-on-primary);
+  box-shadow: var(--mui-shadow-sm);
+}
+
+.danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: var(--mui-shadow-md);
+  transform: translateY(-1px);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

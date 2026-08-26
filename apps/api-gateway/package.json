@@ -1,0 +1,32 @@
+{
+  "name": "machi-asia-api-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Token-verifying reverse proxy in front of machi-asia microservices",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "jose": "^6.2.10",
+    "next": "^15.5.23",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.5.23",
+    "jest": "^30.4.2",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,87 @@
+:root {
+  --mui-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mui-text-color: #0f172a;
+  --mui-text-muted: #64748b;
+  --mui-bg: #ffffff;
+  --mui-surface: #f8fafc;
+  --mui-border: #e2e8f0;
+  --mui-border-strong: #cbd5e1;
+  --mui-primary: #4f46e5;
+  --mui-primary-strong: #4338ca;
+  --mui-primary-soft: #eef2ff;
+  --mui-on-primary: #ffffff;
+  --mui-danger: #dc2626;
+  --mui-success: #16a34a;
+  --mui-warning: #d97706;
+  --mui-info: #2563eb;
+  --mui-scrim: rgba(15, 23, 42, 0.5);
+  --mui-radius-sm: 8px;
+  --mui-radius-md: 12px;
+  --mui-radius-lg: 18px;
+  --mui-radius-full: 999px;
+  --mui-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --mui-shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
+  --mui-shadow-lg: 0 14px 40px rgba(15, 23, 42, 0.18);
+  --mui-glass-bg: rgba(255, 255, 255, 0.65);
+  --mui-z-dropdown: 900;
+  --mui-z-modal: 1000;
+  --mui-z-drawer: 1100;
+  --mui-z-toast: 1200;
+  --mui-duration-fast: 150ms;
+  --mui-duration-normal: 240ms;
+  --mui-duration-slow: 400ms;
+  --mui-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --mui-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mui-theme='light']) {
+    --mui-text-color: #e2e8f0;
+    --mui-text-muted: #94a3b8;
+    --mui-bg: #0f172a;
+    --mui-surface: #1e293b;
+    --mui-border: #293548;
+    --mui-border-strong: #475569;
+    --mui-primary: #818cf8;
+    --mui-primary-strong: #a5b4fc;
+    --mui-primary-soft: rgba(129, 140, 248, 0.14);
+    --mui-danger: #f87171;
+    --mui-success: #4ade80;
+    --mui-warning: #fbbf24;
+    --mui-info: #60a5fa;
+    --mui-scrim: rgba(0, 0, 0, 0.65);
+    --mui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --mui-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+    --mui-shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.6);
+    --mui-glass-bg: rgba(15, 23, 42, 0.55);
+  }
+}
+
+[data-mui-theme='dark'] {
+  --mui-text-color: #e2e8f0;
+  --mui-text-muted: #94a3b8;
+  --mui-bg: #0f172a;
+  --mui-surface: #1e293b;
+  --mui-border: #293548;
+  --mui-border-strong: #475569;
+  --mui-primary: #818cf8;
+  --mui-primary-strong: #a5b4fc;
+  --mui-primary-soft: rgba(129, 140, 248, 0.14);
+  --mui-danger: #f87171;
+  --mui-success: #4ade80;
+  --mui-warning: #fbbf24;
+  --mui-info: #60a5fa;
+  --mui-scrim: rgba(0, 0, 0, 0.65);
+  --mui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --mui-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --mui-shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.6);
+  --mui-glass-bg: rgba(15, 23, 42, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-force-motion]) {
+    --mui-duration-fast: 1ms;
+    --mui-duration-normal: 1ms;
+    --mui-duration-slow: 1ms;
+  }
+}

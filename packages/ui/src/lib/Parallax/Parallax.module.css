@@ -1,0 +1,19 @@
+.parallax {
+  position: relative;
+}
+
+.inner {
+  height: 100%;
+  transform: translate3d(
+    0,
+    calc((var(--mui-progress, 0.5) - 0.5) * var(--mui-parallax-speed, 0) * 100vh),
+    0
+  );
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-force-motion]) .inner {
+    transform: none;
+  }
+}

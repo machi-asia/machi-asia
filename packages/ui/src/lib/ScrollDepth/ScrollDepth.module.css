@@ -1,0 +1,34 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1200px;
+}
+
+.layer {
+  /* --mui-lp is the layer's own 0-1 flight progress, offset per layer. */
+  --mui-lp: clamp(0, calc((var(--mui-progress, 0) - var(--mui-layer-start, 0)) * 2.2222), 1);
+
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform: translateZ(calc((var(--mui-lp) - 1) * 1100px));
+  opacity: min(1, calc(var(--mui-lp) * 1.5));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-force-motion]) .layer {
+    transform: none;
+    opacity: 1;
+  }
+
+  html:not([data-force-motion]) .layer:not(:first-child) {
+    visibility: hidden;
+  }
+}

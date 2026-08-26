@@ -1,0 +1,173 @@
+name: PR Pipeline (Web)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version used by every job
+        required: false
+        type: string
+        default: '22'
+      working-directory:
+        description: Application root inside the calling repository
+        required: false
+        type: string
+        default: '.'
+      shard-count:
+        description: Number of parallel Vitest shards
+        required: false
+        type: number
+        default: 5
+      playwright-browsers:
+        description: Browsers passed to playwright install
+        required: false
+        type: string
+        default: chromium
+    secrets:
+      VERCEL_TOKEN:
+        description: Vercel token with deployment rights to the project
+        required: true
+      VERCEL_ORG_ID:
+        description: Vercel team/scope id
+        required: true
+      VERCEL_PROJECT_ID:
+        description: Vercel project id for the calling repository
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan-matrix:
+    name: Plan Checks Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - id: build
+        shell: bash
+        run: |
+          SHARDS='${{ inputs.shard-count }}'
+          {
+            printf '[\n'
+            printf '{"name":"ESLint","command":"npm run lint"},\n'
+            printf '{"name":"Stylelint","command":"npm run lint:style"},\n'
+            printf '{"name":"Typecheck","command":"npm run typecheck"},\n'
+            i=1
+            while [ "$i" -le "$SHARDS" ]; do
+              if [ "$i" -lt "$SHARDS" ]; then
+                printf '{"name":"Vitest (shard %s/%s)","command":"npm test -- --shard=%s/%s"},\n' "$i" "$SHARDS" "$i" "$SHARDS"
+              else
+                printf '{"name":"Vitest (shard %s/%s)","command":"npm test -- --shard=%s/%s"}\n' "$i" "$SHARDS" "$i" "$SHARDS"
+              fi
+              i=$((i + 1))
+            done
+            printf ']\n'
+          } > matrix.json
+          echo "matrix=$(jq -c . matrix.json)" >> "$GITHUB_OUTPUT"
+
+  checks:
+    name: ${{ matrix.name }}
+    needs: plan-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory == '.' && 'package-lock.json' || format('{0}/package-lock.json', inputs.working-directory) }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
+
+  build:
+    name: Build
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory == '.' && 'package-lock.json' || format('{0}/package-lock.json', inputs.working-directory) }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+
+  deploy-preview:
+    name: Vercel Preview
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy preview
+        uses: ./.github/actions/vercel-preview
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  e2e:
+    name: Playwright E2E
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: ${{ needs.deploy-preview.outputs.url }}
+      BASE_URL: ${{ needs.deploy-preview.outputs.url }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory == '.' && 'package-lock.json' || format('{0}/package-lock.json', inputs.working-directory) }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ inputs.playwright-browsers }}
+      - name: Run E2E tests against preview
+        run: npx playwright test
+
+  rollback:
+    name: Rollback Failed Deployment
+    needs: [deploy-preview, e2e]
+    if: ${{ failure() && needs.deploy-preview.outputs.url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Roll back failed preview
+        uses: ./.github/actions/vercel-rollback
+        with:
+          node-version: ${{ inputs.node-version }}
+          deployment-url: ${{ needs.deploy-preview.outputs.url }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}

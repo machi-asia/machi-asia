@@ -1,0 +1,55 @@
+labels:
+  - name: bug
+    color: f9d0c4
+    description: Something is not working
+  - name: enhancement
+    color: a2eeef
+    description: New feature or request
+  - name: documentation
+    color: 0075ca
+    description: Documentation updates only
+  - name: question
+    color: d876e3
+    description: Further information requested
+  - name: duplicate
+    color: cfd3d7
+    description: This issue or pull request already exists
+  - name: invalid
+    color: e99695
+    description: This is not an issue with the project
+  - name: wontfix
+    color: ffffff
+    description: This will not be worked on
+  - name: help wanted
+    color: 008672
+    description: Extra attention or contribution welcome
+  - name: good first issue
+    color: 7057ff
+    description: Suitable for a first-time contributor
+  - name: dependencies
+    color: 0366d6
+    description: Dependency or Dependabot related changes
+  - name: security
+    color: b60205
+    description: Security vulnerability or hardening work
+  - name: ci/cd
+    color: 1d76db
+    description: Build, pipelines, deployments, tooling
+  - name: triage
+    color: fbca04
+    description: Awaiting maintainer review and prioritization
+  - name: blocked
+    color: ee0701
+    description: Cannot proceed until another item resolves
+  - name: p0-critical
+    color: b60205
+    description: Drop everything, fix immediately
+  - name: p1-high
+    color: d93f0b
+    description: Fix in the current sprint
+  - name: p2-medium
+    color: fbca04
+    description: Fix in the next sprint
+  - name: p3-low
+    color: 0e8a16
+    description: Backlog, fix when capacity allows

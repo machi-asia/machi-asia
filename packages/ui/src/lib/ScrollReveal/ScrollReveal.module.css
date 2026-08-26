@@ -1,0 +1,67 @@
+.reveal {
+  will-change: opacity, transform;
+}
+
+.fade-up {
+  opacity: var(--mui-progress, 0);
+  transform: translateY(calc((1 - var(--mui-progress, 0)) * 36px));
+}
+
+.fade-down {
+  opacity: var(--mui-progress, 0);
+  transform: translateY(calc((1 - var(--mui-progress, 0)) * -36px));
+}
+
+.fade-left {
+  /* Travels leftward into place while entering from the right. */
+  opacity: var(--mui-progress, 0);
+  transform: translateX(calc((1 - var(--mui-progress, 0)) * 36px));
+}
+
+.fade-right {
+  /* Travels rightward into place while entering from the left. */
+  opacity: var(--mui-progress, 0);
+  transform: translateX(calc((1 - var(--mui-progress, 0)) * -36px));
+}
+
+.zoom-in {
+  opacity: var(--mui-progress, 0);
+  transform: scale(calc(0.86 + var(--mui-progress, 0) * 0.14));
+}
+
+.zoom-out {
+  opacity: var(--mui-progress, 0);
+  transform: scale(calc(1.12 - var(--mui-progress, 0) * 0.12));
+}
+
+.blur {
+  opacity: var(--mui-progress, 0);
+  filter: blur(calc((1 - var(--mui-progress, 0)) * 16px));
+}
+
+.wipe {
+  clip-path: inset(0 calc((1 - var(--mui-progress, 0)) * 100%) 0 0);
+}
+
+.rotate {
+  opacity: var(--mui-progress, 0);
+  transform-origin: center bottom;
+  transform: rotate(calc((1 - var(--mui-progress, 0)) * -4deg))
+    translateY(calc((1 - var(--mui-progress, 0)) * 28px));
+}
+
+.flip {
+  opacity: var(--mui-progress, 0);
+  transform-origin: center top;
+  transform: perspective(1200px) rotateX(calc((1 - var(--mui-progress, 0)) * -18deg))
+    translateY(calc((1 - var(--mui-progress, 0)) * 26px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-force-motion]) .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    clip-path: none;
+  }
+}

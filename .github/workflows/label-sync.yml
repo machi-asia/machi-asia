@@ -1,0 +1,30 @@
+name: Label Sync
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    name: Sync Labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure labels manifest exists
+        shell: bash
+        run: |
+          if [ ! -f .github/labels.yml ]; then
+            echo "::error::.github/labels.yml is missing from this repository."
+            echo "Copy the canonical manifest from machi-asia/.github first:"
+            echo "  curl -fsSL https://raw.githubusercontent.com/machi-asia/.github/main/.github/labels.yml -o .github/labels.yml"
+            exit 1
+          fi
+      - uses: crazy-max/ghaction-github-labeler@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          yaml-file: .github/labels.yml
+          skip-delete: true

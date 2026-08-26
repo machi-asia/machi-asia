@@ -1,0 +1,148 @@
+.tabs {
+  font-family: inherit;
+}
+
+.tablist {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1.5px solid var(--mui-border);
+}
+
+.tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 18px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--mui-text-muted);
+  transition: color var(--mui-duration-fast) var(--mui-ease-out), background-color var(--mui-duration-normal) var(--mui-ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:hover {
+  color: var(--mui-text-color);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--mui-primary);
+  outline-offset: -2px;
+  border-radius: var(--mui-radius-sm);
+}
+
+.tabActive {
+  color: var(--mui-primary);
+}
+
+.indicator {
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  height: 3px;
+  border-radius: var(--mui-radius-full) var(--mui-radius-full) 0 0;
+  background: var(--mui-primary);
+  opacity: 0;
+  transition:
+    transform var(--mui-duration-normal) var(--mui-ease-spring),
+    width var(--mui-duration-normal) var(--mui-ease-spring),
+    opacity var(--mui-duration-fast) linear;
+}
+
+.indicator[data-ready] {
+  opacity: 1;
+}
+
+.pills .tablist {
+  background: var(--mui-surface);
+  padding: 4px;
+  gap: 4px;
+  border-radius: var(--mui-radius-full);
+  border-bottom: none;
+}
+
+.pills .tab {
+  min-height: 42px;
+  border-radius: var(--mui-radius-full);
+}
+
+.pills .indicator {
+  top: 4px;
+  bottom: 4px;
+  height: auto;
+  background: var(--mui-bg);
+  border-radius: var(--mui-radius-full);
+  box-shadow: var(--mui-shadow-sm), inset 0 0 0 1px var(--mui-border);
+}
+
+.enclosed .tablist {
+  gap: 6px;
+  border-bottom: none;
+}
+
+.enclosed .tab {
+  border: 1px solid var(--mui-border);
+  border-bottom: none;
+  border-radius: var(--mui-radius-md) var(--mui-radius-md) 0 0;
+  background: var(--mui-surface);
+}
+
+.enclosed .tabActive {
+  background: var(--mui-bg);
+  border-color: var(--mui-border-strong);
+}
+
+.enclosed .indicator {
+  display: none;
+}
+
+.panel {
+  padding-top: 18px;
+  animation-duration: var(--mui-duration-normal);
+  animation-timing-function: var(--mui-ease-out);
+  animation-fill-mode: backwards;
+}
+
+.panelForward {
+  animation-name: panel-forward;
+}
+
+.panelBack {
+  animation-name: panel-back;
+}
+
+@keyframes panel-forward {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes panel-back {
+  from {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

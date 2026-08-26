@@ -1,0 +1,59 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  height: 100%;
+  transform: scale(calc(1.08 - var(--mui-progress, 0) * 0.08));
+}
+
+.panels {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.panel {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  background: var(--mui-surface);
+  box-shadow: var(--mui-shadow-lg);
+  will-change: transform;
+}
+
+.horizontal .panelA {
+  inset: 0 50% 0 0;
+  transform: translateX(calc(var(--mui-progress, 0) * -101%));
+}
+
+.horizontal .panelB {
+  inset: 0 0 0 50%;
+  transform: translateX(calc(var(--mui-progress, 0) * 101%));
+}
+
+.vertical .panelA {
+  inset: 0 0 50% 0;
+  transform: translateY(calc(var(--mui-progress, 0) * -101%));
+}
+
+.vertical .panelB {
+  inset: 50% 0 0 0;
+  transform: translateY(calc(var(--mui-progress, 0) * 101%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Park the doors fully open so any content on them stays reachable while
+     the section beneath is revealed instantly. */
+  html:not([data-force-motion]) .section {
+    --mui-progress: 1 !important;
+  }
+}

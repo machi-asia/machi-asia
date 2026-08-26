@@ -1,0 +1,107 @@
+.viewport {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, calc(100vw - 40px));
+  z-index: var(--mui-z-toast);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--mui-bg);
+  border-radius: var(--mui-radius-md);
+  box-shadow: var(--mui-shadow-lg), inset 0 0 0 1px var(--mui-border);
+  font-family: inherit;
+  pointer-events: auto;
+  overflow: hidden;
+  animation: toast-in var(--mui-duration-normal) var(--mui-ease-spring);
+  transition:
+    opacity var(--mui-duration-fast) ease,
+    transform var(--mui-duration-fast) ease;
+}
+
+.leaving {
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--mui-text-color);
+  line-height: 1.35;
+}
+
+.description {
+  margin-top: 3px;
+  font-size: 0.85rem;
+  color: var(--mui-text-muted);
+  line-height: 1.5;
+}
+
+.close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px 0 0;
+  border-radius: var(--mui-radius-full);
+  color: var(--mui-text-muted);
+  flex-shrink: 0;
+  transition:
+    background-color var(--mui-duration-fast) var(--mui-ease-out),
+    color var(--mui-duration-fast) var(--mui-ease-out);
+}
+
+.close:hover {
+  background: var(--mui-surface);
+  color: var(--mui-text-color);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--mui-primary);
+}
+
+.info {
+  box-shadow: inset 4px 0 0 var(--mui-info), var(--mui-shadow-lg);
+}
+
+.success {
+  box-shadow: inset 4px 0 0 var(--mui-success), var(--mui-shadow-lg);
+}
+
+.warning {
+  box-shadow: inset 4px 0 0 var(--mui-warning), var(--mui-shadow-lg);
+}
+
+.error {
+  box-shadow: inset 4px 0 0 var(--mui-danger), var(--mui-shadow-lg);
+}

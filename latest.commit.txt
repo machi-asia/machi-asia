@@ -1,0 +1,6 @@
+refactor(monorepo): consolidate multi-repo architecture and cleanup legacy files
+
+- root: initialize unified monorepo with Turborepo, npm workspaces, and root README
+- .github: remove obsolete multi-repo sync workflows and add unified CI and dependabot configs
+- apps: propagate AGENTS.md, latest.commit.txt, and remove obsolete dependabot and label files
+- packages: link @machi-asia/ui directly to workspace consumers and normalize package configs

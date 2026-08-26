@@ -1,0 +1,78 @@
+name: Dependency Guard
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version used for validation
+        required: false
+        type: string
+        default: '22'
+      working-directory:
+        description: Application root inside the calling repository
+        required: false
+        type: string
+        default: '.'
+      profile:
+        description: Toolchain profile to enforce (web or service)
+        required: false
+        type: string
+        default: web
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: Verify Mandated Toolchain (${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PROFILE: ${{ inputs.profile }}
+      WORKDIR: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: Validate package.json against machi-asia standards
+        shell: bash
+        run: |
+          cd "$WORKDIR"
+          node - <<'NODE'
+          const { readFileSync } = require('node:fs');
+          const profiles = {
+            web: {
+              deps: ['@playwright/test', 'eslint', 'stylelint', 'typescript', 'vitest'],
+              scripts: ['build', 'lint', 'lint:style', 'test', 'typecheck'],
+            },
+            service: {
+              deps: ['eslint', 'jest', 'typescript'],
+              scripts: ['build', 'lint', 'test', 'typecheck'],
+            },
+          };
+          const profile = process.env.PROFILE;
+          if (!(profile in profiles)) {
+            console.error(`::error::Unknown dependency-guard profile "${profile}". Use "web" or "service".`);
+            process.exit(1);
+          }
+          const required = profiles[profile];
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          const deps = { ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) };
+          const missingDeps = required.deps.filter((d) => !(d in deps));
+          const missingScripts = required.scripts.filter((s) => !(s in (pkg.scripts ?? {})));
+          if (missingDeps.length === 0 && missingScripts.length === 0) {
+            console.log(`All mandated dependencies and scripts for the "${profile}" profile are present.`);
+            process.exit(0);
+          }
+          console.error(`::error::This repository violates the machi-asia "${profile}" toolchain.`);
+          if (missingDeps.length > 0) {
+            console.error('\nMissing devDependencies:');
+            for (const d of missingDeps) console.error(`  npm install --save-dev ${d}`);
+          }
+          if (missingScripts.length > 0) {
+            console.error('\nMissing package.json scripts (see machi-asia/.github README):');
+            for (const s of missingScripts) console.error(`  "${s}": "..."`);
+          }
+          process.exit(1);
+          NODE

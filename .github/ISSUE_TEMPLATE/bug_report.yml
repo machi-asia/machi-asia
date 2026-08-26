@@ -1,0 +1,57 @@
+name: Bug Report
+description: Report something that is broken or behaving incorrectly
+labels:
+  - bug
+  - triage
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear summary of the bug and its impact.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Navigate to '...'
+        2. Click on '...'
+        3. Observe the error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: Include error messages, logs, or console output where relevant.
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - p2-medium (feature broken, workaround exists)
+        - p1-high (major feature broken, no workaround)
+        - p0-critical (production down, data loss, security)
+        - p3-low (cosmetic or minor inconvenience)
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - Browser / OS:
+        - Environment (preview / production):
+        - Commit SHA or deployment URL:
+    validations:
+      required: false
