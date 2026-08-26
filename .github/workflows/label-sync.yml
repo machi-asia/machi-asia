@@ -23,7 +23,7 @@ jobs:
             echo "  curl -fsSL https://raw.githubusercontent.com/machi-asia/.github/main/.github/labels.yml -o .github/labels.yml"
             exit 1
           fi
-      - uses: crazy-max/ghaction-github-labeler@v5
+      - uses: crazy-max/ghaction-github-labeler@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
