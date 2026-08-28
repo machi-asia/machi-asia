@@ -1,8 +1,8 @@
 {
-  "name": "machi-asia-rose",
+  "name": "rose",
   "version": "0.1.0",
   "private": true,
-  "description": "Rose — a general-purpose AI companion powered by Google Gemini",
+  "description": "Rose — a general-purpose AI companion powered by Google Gemini, with chat sessions, login, and usage limits.",
   "scripts": {
     "dev": "next dev -p 5000",
     "build": "next build",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@machi-asia/auth": "*",
+    "@machi-asia/rose": "*",
     "@machi-asia/ui": "*",
     "@supabase/supabase-js": "^2.112.4",
     "next": "^15.5.23",

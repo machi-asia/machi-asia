@@ -1,0 +1,17 @@
+export { assertRegistryConsistent, RESERVED_PREFIXES, SERVICE_REGISTRY } from "./lib/services";
+export type { ServiceDefinition } from "./lib/services";
+export { getRoutes, resetRoutes, resolveRoute } from "./lib/routes";
+export type { GatewayRoute } from "./lib/routes";
+export { buildUpstreamUrl, buildUpstreamRequestHeaders, buildResponseHeaders } from "./lib/proxy";
+export { GATEWAY_HEADER_PREFIX, extractBearerToken, gate, identityHeaders, gatewaySecret } from "./lib/auth-gate";
+export type { GateIdentityHeaders, GateResult } from "./lib/auth-gate";
+export { currentWeek, checkAndIncrementUsage, checkAndIncrementRoseUsage, getUsage } from "./lib/usage";
+export type { UsageCheck } from "./lib/usage";
+export { verifyAccessToken } from "./lib/verify";
+export type { VerifiedIdentity } from "./lib/verify";
+export { getSupabase } from "./lib/supabase";
+export { getBrowserSupabase } from "./lib/supabase-browser";
+export { env } from "./lib/env";
+export { GATEWAY_MATCHER, getCorsHeaders, gatewayMiddleware } from "./middleware";
+export { UsageCard } from "./components/UsageCard";
+export { UsagePage } from "./components/UsagePage";

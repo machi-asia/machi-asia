@@ -2,17 +2,23 @@
   "name": "@machi-asia/auth",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared auth provider, session management, and AuthGate for machi-asia frontend apps.",
+  "description": "Shared auth for machi-asia: client-side provider, session management, and AuthGate, plus the server-side auth service (route handlers and verification helpers).",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/client/index.js",
+  "types": "./dist/client/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js"
+    },
+    "./server/*": {
+      "types": "./dist/server/*.d.ts",
+      "import": "./dist/server/*.js"
     },
     "./package.json": "./package.json"
   },
@@ -27,21 +33,30 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'No ESLint configured yet' && exit 0",
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "jest"
   },
   "dependencies": {
-    "@machi-asia/ui": "*"
+    "@machi-asia/ui": "*",
+    "@supabase/supabase-js": "^2.112.4",
+    "jose": "^6.1.0",
+    "zod": "^4.2.1"
   },
   "peerDependencies": {
+    "next": "^15.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "jest": "^30.4.2",
+    "jest-environment-node": "^30.4.1",
+    "next": "^15.5.23",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.9.3"
   }
 }

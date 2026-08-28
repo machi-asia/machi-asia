@@ -23,6 +23,6 @@ Excluded: pure styling tweaks and internal refactors with no behavioral surface.
 
 ### 3. Maintain Workspace Boundaries & Monorepo Integrity
 
-- Shared components and libraries belong in `packages/*`.
-- Microservices and deployable web applications belong in `apps/*`.
+- Shared components, libraries, and service code (route handlers, middleware, server helpers) belong in `packages/*`.
+- Deployable applications belong in `apps/*`. Currently the only app is `apps/tween`, which consumes the packages.
 - Use Turborepo commands (`npm run build`, `npm run test`, `npm run lint`, `npm run typecheck`) to ensure all workspaces remain passing.

@@ -23,8 +23,8 @@ Excluded: pure styling tweaks and internal refactors with no behavioral surface.
 
 ### 3. Maintain Workspace Boundaries & Monorepo Integrity
 
-- Shared components and libraries belong in `packages/*`.
-- Microservices and deployable web applications belong in `apps/*`.
+- Shared components, libraries, and service code (route handlers, middleware, server helpers) belong in `packages/*`.
+- Deployable applications belong in `apps/*`. Currently the apps are `apps/tween` and `apps/rose`, which consume the packages.
 - Use Turborepo commands (`npm run build`, `npm run test`, `npm run lint`, `npm run typecheck`) to ensure all workspaces remain passing.
 
 ### 4. CI Pipeline Enforcement (Local Pre-flight)
@@ -35,16 +35,16 @@ Every change **must** pass the equivalent of both CI pipelines locally before co
 
 | Workspace | `lint` | `typecheck` | `test` | `build` | `lint:style` |
 |:--|:--|:--|:--|:--|:--|
-| `apps/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
 | `apps/tween` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
-| `apps/media-library` | ✅ | ✅ | ✅ | ✅ | — |
-| `apps/api-gateway` | ✅ | ✅ | ✅ | ✅ | — |
-| `apps/auth` | ✅ | ✅ | ✅ | ✅ | — |
+| `apps/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
 | `packages/ui` | ✅ *add if missing* | ✅ | ✅ | ✅ | ✅ *add if missing* |
-| `packages/auth` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
+| `packages/auth` | ✅ | ✅ | ✅ | ✅ | — |
+| `packages/api-gateway` | ✅ | ✅ | ✅ | ✅ | — |
+| `packages/media-library` | ✅ | ✅ | ✅ | ✅ | — |
+| `packages/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
 
-- **`lint:style`** is only required for web app workspaces (`apps/rose`, `apps/tween`, `apps/media-library`) and `packages/ui`. Use `stylelint` or `prettier --check` as appropriate. Other packages skip this step.
-- If a workspace is missing a required script above, **add it** (even as a no-op pass-through) so Turborepo can run uniformly. For example, `packages/auth` with no tests should have `"test": "echo 'No tests yet' && exit 0"`.
+- **`lint:style`** is only required for web app workspaces (`apps/tween`) and `packages/ui`. Use `stylelint` or `prettier --check` as appropriate. Other packages skip this step.
+- If a workspace is missing a required script above, **add it** (even as a no-op pass-through) so Turborepo can run uniformly. For example, `packages/media-library` with no tests should have `"test": "jest --passWithNoTests"`.
 
 #### Local Pipeline Commands
 
@@ -53,7 +53,7 @@ Every change **must** pass the equivalent of both CI pipelines locally before co
 npm install
 ```
 
-**Step 2 — Run the web pipeline equivalent** (for apps/rose, apps/tween, apps/media-library, packages/ui):
+**Step 2 — Run the Turborepo pipelines** (web + service equivalents across all workspaces):
 ```powershell
 npm run lint
 npm run typecheck
@@ -61,15 +61,7 @@ npm run test
 npm run build
 ```
 
-**Step 3 — Run the service pipeline equivalent** (for apps/api-gateway, apps/auth):
-```powershell
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-```
-
-**Step 4 — Run the full monorepo validation** (final gate before ending a task):
+**Step 3 — Run the full monorepo validation** (final gate before ending a task):
 ```powershell
 npx turbo run lint typecheck test build
 ```
@@ -78,7 +70,7 @@ If any step fails, fix the errors before proceeding. Never end a session or comm
 
 ### 5. Vercel Deployment Assumption
 
-Every app in `apps/*` is deployed to **Vercel** as its own Vercel project. Do not assume any app runs outside of Vercel in production. All configuration, build outputs, and environment variable strategies must be compatible with the Vercel platform.
+The apps in `apps/*` (`apps/tween`, `apps/rose`) are deployed to **Vercel** as their own Vercel projects. Packages under `packages/*` are libraries — they are not independently deployed; they are consumed by the apps at build time. Do not assume any app runs outside of Vercel in production. All configuration, build outputs, and environment variable strategies must be compatible with the Vercel platform (including importing package subpath assets such as CSS and static files into the host app).
 
 ### 6. Document All Environment Variables
 

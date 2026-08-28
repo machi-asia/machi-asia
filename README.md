@@ -9,14 +9,13 @@ Unified monorepo for the **machi-asia** ecosystem, powered by [npm workspaces](h
 ```
 .
 ├── apps/
-│   ├── api-gateway/       # Token-verifying reverse proxy, JWT gateway & weekly usage limits (Next.js)
-│   │                         Includes a usage dashboard at `/` with Supabase Realtime live updates
-│   ├── auth/              # Supabase Auth wrapper & token issuer service (Next.js)
-│   ├── media-library/     # CRUD app for media assets — image gallery & management (Next.js)
-│   ├── rose/              # Rose — general-purpose AI companion powered by Google Gemini (Next.js)
-│   └── tween/             # Motion-first web page builder (Next.js)
+│   ├── rose/              # AI companion chatbot (Next.js, port 5000) — sessions, login, usage limits
+│   └── tween/             # Motion-first web page builder (Next.js) — the consuming app
 ├── packages/
-│   ├── auth/              # @machi-asia/auth shared auth provider, hooks, and AuthGate
+│   ├── api-gateway/       # @machi-asia/api-gateway — token-verifying reverse proxy, gateway middleware & route handlers (library)
+│   ├── auth/              # @machi-asia/auth — auth provider/AuthGate (./client) + Supabase auth service routes & verification (./server)
+│   ├── media-library/     # @machi-asia/media-library — media CRUD modal, client components & route handlers (library)
+│   ├── rose/              # @machi-asia/rose — Gemini chat components, chat/usage/sessions routes, styles & assets (library)
 │   └── ui/                # @machi-asia/ui animated React component library
 ├── .github/
 │   ├── workflows/         # Monorepo CI & GitHub Actions
@@ -24,6 +23,8 @@ Unified monorepo for the **machi-asia** ecosystem, powered by [npm workspaces](h
 ├── package.json           # Root workspace definitions & pipeline scripts
 └── turbo.json             # Turborepo task pipeline configuration
 ```
+
+The services formerly deployed as standalone apps (`api-gateway`, `auth`, `media-library`, `rose`) now live in `packages/` as importable libraries. The deployable applications are `apps/tween` and `apps/rose`, which consume the packages.
 
 ---
 
@@ -39,18 +40,14 @@ npm install
 ```
 
 ### Development
-Start all apps and watch mode across packages concurrently:
+Run the app and watch the packages it depends on:
 ```bash
 npm run dev
 ```
 
-Or target a specific app:
+Or target a specific workspace:
 ```bash
 npx turbo run dev --filter=tween
-npx turbo run dev --filter=machi-asia-auth
-npx turbo run dev --filter=machi-asia-api-gateway
-npx turbo run dev --filter=machi-asia-media-library
-npx turbo run dev --filter=machi-asia-rose
 ```
 
 ---
@@ -70,42 +67,58 @@ npx turbo run dev --filter=machi-asia-rose
 
 ## 📦 Apps
 
-### api-gateway
-Token-verifying reverse proxy with weekly usage limits and a real-time usage dashboard.
-- **Routes**: API requests are proxied to registered microservices; `/api/usage` returns current usage stats.
-- **Dashboard**: The root `/` path serves a live usage card (powered by `@machi-asia/ui` Card) that subscribes to Supabase Realtime INSERT events on the `usage_limits` table.
-- **Env vars**: See `apps/api-gateway/.env.example` — requires `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_SECRET`, and `INTERNAL_GATEWAY_SECRET`.
-
-### media-library
-Image management app with upload, gallery/list views, and real-time sync.
-- **Modal**: A `MediaLibraryModal` component using `@machi-asia/ui` Modal with upload, search, Gallery and Table view toggle, and delete-with-confirmation.
-- **Realtime**: Subscribes to Supabase Realtime INSERT/UPDATE events on the `media` table for live updates.
-- **API**: `/api/media` (GET list, POST upload) and `/api/media/[id]` (DELETE soft-delete) routes with JWT verification via jose.
-- **Storage**: Files uploaded to Supabase Storage `media` bucket, metadata stored in the `media` table.
-- **Env vars**: See `apps/media-library/.env.example` — requires `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_SECRET`, `NEXT_PUBLIC_AUTH_API_URL`, and optionally `MEDIA_STORAGE_BUCKET`.
-
 ### rose
-General-purpose AI companion powered by Google Gemini, accessible through the api-gateway.
-- **Chat API**: `POST /api/rose/chat` — accepts `{ history, message }`, returns `{ text, history, traces, emotion, optionsPayload }`.
-- **Chat UI**: Full interactive chat interface at `/chat` with markdown rendering, emotion avatars, interactive option buttons, and typing indicators.
-- **Tools**: Web search, calculator, code analyzer, and interactive question picker.
-- **Usage**: Role-based weekly limits enforced by the api-gateway — admins: unlimited, users: 200 req/week, anonymous: blocked.
-- **Env vars**: See `apps/rose/.env.example` — requires `GEMINI_API_KEY`, `INTERNAL_GATEWAY_SECRET`, and `NEXT_PUBLIC_AUTH_API_URL`.
+General-purpose AI companion (Next.js, dev port `5000`). The `/chat` page provides a sessions-based chat experience:
+- **Sessions**: persistent chat threads backed by the `rose_sessions` / `rose_session_messages` tables; create, switch, and delete sessions from the sidebar.
+- **Login**: hosts the `@machi-asia/auth` server routes under `/api/auth/*` (login, signup, guest, logout, token, user) and wraps the UI with `AuthGate`.
+- **Usage Limits**: tiered by role — guest (10/day, 50/week), authenticated user (20/day, 200/week), admin (unlimited). Limits are enforced automatically by the chat routes and surfaced by `UsageBar`.
+- **Middleware**: `middleware.ts` verifies the Bearer access token for all `/api` traffic (except public auth routes) and injects `x-gateway-sub` / `x-gateway-roles`, so the `@machi-asia/rose` route handlers work unmodified.
+- **Env vars**: see `apps/rose/.env.example` and `apps/rose/.env.development`.
 
-### Packages
+### tween
+Motion-first web page builder (Next.js). The second deployable app in the monorepo; consumes `@machi-asia/auth`, `@machi-asia/api-gateway`, `@machi-asia/media-library`, `@machi-asia/rose`, and `@machi-asia/ui`.
 
-#### @machi-asia/auth
-Shared authentication package consumed by all frontend apps.
-- **AuthProvider**: Wraps app tree; manages session state, token refresh, login/register/guestLogin/logout.
-- **useAuth**: Hook exposing `{ session, loading, login, register, guestLogin, logout }`.
-- **AuthGate**: Composes `AuthProvider` + `AuthModal`; if no session, renders the login modal with "Continue as guest" support.
-- **Token store**: localStorage-backed `saveTokens` / `loadTokens` / `clearTokens` for cross-component access token sharing.
+---
+
+## 📦 Packages
+
+### @machi-asia/api-gateway
+Token-verifying reverse proxy with weekly usage limits (library + Next.js route handlers).
+- **`src/middleware.ts`**: exports `GATEWAY_MATCHER`, `getCorsHeaders`, `gatewayMiddleware`, and a default export. Host apps copy/wrap this in their own `middleware.ts` (Next requires the `config.matcher` in the host file) to run JWT verification + origin allow-listing in front of all `/api` traffic.
+- **Routes**: `./routes/gateway` (forwarding proxy via `NEXT_REWRITE`/`fetch`), `POST ./routes/usage` (usage stats), `./routes/health`. Gateway forwards verified JWTs as `x-gateway-sub`, `x-gateway-email`, `x-gateway-roles`, and `x-gateway-session-id` — upstream services trust these and skip their own token verification.
+- **Env vars**: see `packages/api-gateway/.env.example` — requires `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_SECRET`, `INTERNAL_GATEWAY_SECRET`, and `ALLOWED_ORIGINS`.
+
+### @machi-asia/auth
+Authentication for machi-asia — one package with two entry points.
+- **Client (`import ... from "@machi-asia/auth"`)**: `AuthProvider` (session state, token refresh, login/register/guestLogin/logout), `useAuth`, `AuthGate` (composes `AuthProvider` + `AuthModal`), and the localStorage-backed token store.
+- **Server (`import ... from "@machi-asia/auth/server"`)**: the Supabase auth service — `POST ./server/auth/guest`, `./server/auth/login`, `./server/auth/signup`, `./server/auth/logout`, `./server/auth/token`, `./server/auth/user`, `GET ./server/health`, `PATCH ./server/admin/users/[id]/roles`; plus helpers `verifyAccessToken`, `refreshTokens`, `createPublicClient`/`createAdminClient`, `toTokenEnvelope`/`toPublicUser`, `authErrorResponse`/`apiError`/`handleRouteError`, and `authMiddleware` (CORS helper for route hosting).
+- **Env vars**: see `packages/auth/.env.example` — requires `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_SECRET`, `ADMIN_API_SECRET`, and `ALLOWED_ORIGINS`.
+
+### @machi-asia/media-library
+Media asset library (library + Next.js route handlers).
+- **Components**: `MediaLibraryModal`, `MediaPage`, `Providers` — built on `@machi-asia/ui`; implements upload, search, gallery/list toggle, and delete-with-confirmation, with Supabase Realtime INSERT/UPDATE sync on the `media` table.
+- **Routes**: `./routes/media` (GET list, POST upload) and `./routes/media-by-id` (DELETE soft-delete). Routes trust `x-gateway-sub` for user identity (requests are routed through the api-gateway).
+- **Storage**: files uploaded to the Supabase Storage `media` bucket; metadata stored in the `media` table.
+- **Env vars**: see `packages/media-library/.env.example` — requires `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_SECRET`, `NEXT_PUBLIC_GATEWAY_URL`, and optionally `MEDIA_STORAGE_BUCKET`.
+
+### @machi-asia/rose
+Rose — an extensible AI companion skeleton and orchestrator engine powered by Google Gemini (library + Next.js route handlers). Designed as a clean, pluggable foundation for any web app to integrate chat and easily register custom tools, specialists, slash commands, and system instructions.
+- **Default Tools**: general-purpose utility tools included by default (`webSearch`, `calculator`, `codeAnalyzer`, `askQuestion`, `delegateToSpecialist`).
+- **Extensible Registry**: easily add custom tools with `createTool` / `registerTool`, custom sub-agents with `createSpecialist` / `registerSpecialist`, custom slash categories with `createCommandCategory` / `createCommandItem`, or build custom pre-configured runners with `createAgentRunner`.
+- **Components**: `Chat` (presentational chat thread with rich Markdown rendering, emotion avatars, tool reasoning traces, and interactive option buttons), `ChatInterface` (self-contained chat UI wired to the chat route), `ChatbotInputArea` (multi-segment input with removable badge chips and slash command triggers), `ChatbotSlashMenu` (keyboard-navigable command palette), `ChatbotWelcome` (customizable starter cards, quick command shortcuts, and clickable category badges), `ChatbotTraces` (expandable reasoning tracer with thinking avatar), `ChatbotOptionsPicker` (interactive option pills), `MarkdownRenderer` (GFM, GitHub-style callouts, syntax-highlighted copyable code blocks, zoomable images, and embedded video players), `UsageBar`, `Providers`. Import `@machi-asia/rose/styles.css` in the host root layout to pick up the chat styles.
+- **Routes**: `POST ./routes/chat` (`{ history, message }` → `{ text, history, traces, emotion, optionsPayload, usage }`, requires `x-gateway-sub` and enforces tiered role usage limits), `GET ./routes/usage` (daily and weekly usage for the `ROSE` service key), `GET/POST ./routes/sessions` (list/create), `GET/PATCH/DELETE ./routes/sessions/[id]`, and `POST ./routes/sessions/[id]/chat` (chat within a persisted session).
+- **Sessions**: chat threads persisted via the `rose_sessions` and `rose_session_messages` tables (see `supabase/migrations/`). Session routes require the user id from `x-gateway-sub`.
+- **Assets**: 9 emotion avatars (`bright`, `coding`, `confused`, `happy`, `researching`, `sad`, `sleeping`, `surprised`, `thinking`) live in `assets/rose/` and are referenced by the components as `/rose/<emotion>.png` — host apps copy the folder into their `public/` directory.
+- **Env vars**: see `packages/rose/.env.example` — requires `GEMINI_API_KEY`, `SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY`, optional `SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GATEWAY_URL`, `NEXT_PUBLIC_AUTH_API_URL`, `ROSE_DAILY_LIMIT_GUEST`, `ROSE_WEEKLY_LIMIT_GUEST`, `ROSE_DAILY_LIMIT_USER`, and `ROSE_WEEKLY_LIMIT_USER`.
+
+### @machi-asia/ui
+Animated React component library (Modal, Card, AuthModal, etc.). See `packages/ui`.
 
 ---
 
 ## 📦 Publishing Packages
 
-Shared packages (such as `@machi-asia/ui`) live in `packages/ui` and can be consumed locally via workspace linking (`@machi-asia/ui: "*"`) or published to the npm registry.
+Shared packages live under `packages/` and can be consumed locally via workspace linking (e.g. `@machi-asia/ui: "*"`) or published to the npm registry. Route-handler subpaths are exposed via each package's `exports` map (e.g. `@machi-asia/rose/routes/chat`).
 
 ---
 
