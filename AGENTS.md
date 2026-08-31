@@ -1,23 +1,30 @@
 # Agent Instructions
 
-These instructions apply to the **machi-asia** monorepo (`apps/*` and `packages/*`).
+This is the organization-level `.github` repository for **machi-asia**. It owns the shared
+issue/PR templates, label manifest, reusable CI/CD workflows, composite actions, and the
+canonical `AGENTS.md` that every repository in the org must carry.
 
 ## Mandatory Duties
 
 ### 1. Keep `latest.commit.txt` in sync with uncommitted work
 
-Whenever this working tree contains uncommitted changes, `latest.commit.txt` MUST be updated to describe ALL of them before a task or session ends.
+Whenever this working tree contains uncommitted changes, `latest.commit.txt` MUST be updated
+to describe ALL of them before a task or session ends.
 
 - Base it strictly on the current uncommitted diff (`git status` + `git diff`) against HEAD.
 - Format: the first line (title) MUST match
   `^(feature|fix|refactor|chore|docs|style|test|ci|build)\s*\([a-z0-9]+(-[a-z0-9]+)*\):\s*.+$`
-  — choose the type closest to the dominant nature of the pending changes and a kebab-case scope naming the affected area. Below it, add one bullet per notable change (`- <area>: what changed and why`).
+  — choose the type closest to the dominant nature of the pending changes and a kebab-case
+  scope naming the affected area. Below it, add one bullet per notable change
+  (`- <area>: what changed and why`).
 - Regenerate it from scratch every time; never append stale entries.
 - Once everything is committed and the tree is clean, empty the file.
 
 ### 2. Update `README.md` for every major feature change
 
-Any change that adds, removes, or alters user-facing behavior or developer-facing infrastructure (new apps, new packages, workflows, pipeline stages, or dependencies) requires a matching `README.md` update in the same change.
+Any change that adds, removes, or alters user-facing behavior or developer-facing
+infrastructure (new workflows, new templates, new mandated toolchain, changed pipeline
+stages, new sync mechanisms) requires a matching `README.md` update in the same change.
 
 Excluded: pure styling tweaks and internal refactors with no behavioral surface.
 
@@ -33,15 +40,15 @@ Every change **must** pass the equivalent of both CI pipelines locally before co
 
 #### Required Scripts Per Workspace
 
-| Workspace | `lint` | `typecheck` | `test` | `build` | `lint:style` |
-|:--|:--|:--|:--|:--|:--|
-| `apps/tween` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
-| `apps/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
-| `packages/ui` | ✅ *add if missing* | ✅ | ✅ | ✅ | ✅ *add if missing* |
-| `packages/auth` | ✅ | ✅ | ✅ | ✅ | — |
-| `packages/api-gateway` | ✅ | ✅ | ✅ | ✅ | — |
-| `packages/media-library` | ✅ | ✅ | ✅ | ✅ | — |
-| `packages/rose` | ✅ | ✅ | ✅ *add if missing* | ✅ | — |
+| Workspace                | `lint`              | `typecheck` | `test`              | `build` | `lint:style`        |
+| :----------------------- | :------------------ | :---------- | :------------------ | :------ | :------------------ |
+| `apps/tween`             | ✅                  | ✅          | ✅ _add if missing_ | ✅      | —                   |
+| `apps/rose`              | ✅                  | ✅          | ✅ _add if missing_ | ✅      | —                   |
+| `packages/ui`            | ✅ _add if missing_ | ✅          | ✅                  | ✅      | ✅ _add if missing_ |
+| `packages/auth`          | ✅                  | ✅          | ✅                  | ✅      | —                   |
+| `packages/api-gateway`   | ✅                  | ✅          | ✅                  | ✅      | —                   |
+| `packages/media-library` | ✅                  | ✅          | ✅                  | ✅      | —                   |
+| `packages/rose`          | ✅                  | ✅          | ✅ _add if missing_ | ✅      | —                   |
 
 - **`lint:style`** is only required for web app workspaces (`apps/tween`) and `packages/ui`. Use `stylelint` or `prettier --check` as appropriate. Other packages skip this step.
 - If a workspace is missing a required script above, **add it** (even as a no-op pass-through) so Turborepo can run uniformly. For example, `packages/media-library` with no tests should have `"test": "jest --passWithNoTests"`.
@@ -49,11 +56,13 @@ Every change **must** pass the equivalent of both CI pipelines locally before co
 #### Local Pipeline Commands
 
 **Step 1 — Clean install** (mimics `npm ci` in CI):
+
 ```powershell
 npm install
 ```
 
 **Step 2 — Run the Turborepo pipelines** (web + service equivalents across all workspaces):
+
 ```powershell
 npm run lint
 npm run typecheck
@@ -62,6 +71,7 @@ npm run build
 ```
 
 **Step 3 — Run the full monorepo validation** (final gate before ending a task):
+
 ```powershell
 npx turbo run lint typecheck test build
 ```
@@ -98,4 +108,3 @@ Whenever creating or modifying database tables, columns, indexes, permissions, R
 - **Maintain Migration Files**: Save every schema change as a timestamped migration SQL file in the corresponding package/app `supabase/migrations/` directory (e.g. `packages/rose/supabase/migrations/`).
 - **Permissions & Schema Cache Reload**: Always grant table permissions to `anon`, `authenticated`, and `service_role`, and execute `NOTIFY pgrst, 'reload schema';` so that PostgREST / Supabase API immediately reflects new or altered tables in its schema cache without `PGRST205` errors.
 - **Follow Postgres Best Practices**: Follow the guidelines in the `/supabase-postgres-best-practices` skill for robust column typing, primary keys, foreign keys, indexing, and performant RLS policies.
-
