@@ -1,3 +1,7 @@
+export interface ToolContext {
+  userId?: string;
+}
+
 export interface Tool {
   declaration: {
     name: string;
@@ -8,7 +12,7 @@ export interface Tool {
       required?: string[];
     };
   };
-  execute: (args: any) => Promise<string>;
+  execute: (args: any, context?: ToolContext) => Promise<string>;
 }
 
 import { askQuestionTool } from "./askQuestion";
@@ -16,11 +20,20 @@ import { calculatorTool } from "./calculator";
 import { codeAnalyzerTool } from "./codeAnalyzer";
 import { webSearchTool } from "./webSearch";
 import { delegateToSpecialistTool } from "./specialist";
+import { takeNotesTool } from "./takeNotes";
 
-export { askQuestionTool, calculatorTool, codeAnalyzerTool, webSearchTool, delegateToSpecialistTool };
+export {
+  askQuestionTool,
+  calculatorTool,
+  codeAnalyzerTool,
+  webSearchTool,
+  delegateToSpecialistTool,
+  takeNotesTool,
+};
 
 export const DEFAULT_TOOLS: Tool[] = [
   webSearchTool,
+  takeNotesTool,
   calculatorTool,
   codeAnalyzerTool,
   askQuestionTool,

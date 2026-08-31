@@ -127,8 +127,64 @@
   padding-top: 12px;
 }
 
+.rose-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--rose-border);
+}
+
+.rose-memories-nav-btn {
+  padding: 8px 14px;
+  border-radius: var(--rose-radius);
+  border: 1px solid var(--rose-border);
+  background: var(--rose-surface);
+  color: var(--rose-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.rose-memories-nav-btn:hover {
+  border-color: var(--rose-accent);
+  background: rgba(var(--rose-accent-rgb), 0.1);
+  color: var(--rose-accent);
+}
+
+.chat-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-header-memory-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--rose-border);
+  background: var(--rose-surface);
+  color: var(--rose-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.chat-header-memory-btn:hover {
+  border-color: var(--rose-accent);
+  background: rgba(var(--rose-accent-rgb), 0.15);
+  color: var(--rose-accent);
+}
+
 .rose-logout-btn {
-  margin: 12px 16px;
   padding: 8px 14px;
   border-radius: var(--rose-radius);
   border: 1px solid var(--rose-border);

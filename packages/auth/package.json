@@ -30,6 +30,7 @@
     "node": ">=18.18"
   },
   "scripts": {
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'No ESLint configured yet' && exit 0",

@@ -1,0 +1,71 @@
+{
+  "package": "@machi-asia/auth",
+  "packageDocs": {
+    "summary": "Authentication: client providers, session management, token store, plus server route handlers and JWT verification. Client components require the AuthProvider context. Server exports mount as /api/auth/* route handlers and expect NEXT_PUBLIC_AUTH_API_URL (or an explicit authApiUrl prop) when hosted outside the app origin.",
+    "requiresEnv": ["NEXT_PUBLIC_AUTH_API_URL (optional — defaults to same-origin /api/auth)"],
+    "requiredRoutes": ["POST /api/auth/login", "POST /api/auth/signup", "POST /api/auth/guest", "POST /api/auth/logout", "POST /api/auth/token", "GET /api/auth/user (protected)"],
+    "requiresProviders": []
+  },
+  "components": {
+    "AuthProvider": {
+      "description": "Root context provider for session management. Stores tokens via token-store, refreshes on load, and exposes login/register/guestLogin/logout + session + loading state. Mount once near the app root.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": ["NEXT_PUBLIC_AUTH_API_URL (optional — default same-origin)"],
+      "apiEndpoints": ["POST /api/auth/login", "POST /api/auth/signup", "POST /api/auth/guest", "POST /api/auth/logout", "POST /api/auth/token"],
+      "dependencies": ["react"],
+      "usage": "<AuthProvider authApiUrl=\"/api/auth\">{children}</AuthProvider>",
+      "notes": ["Pass authApiUrl only when auth routes live on another origin."]
+    },
+    "AuthGate": {
+      "description": "Auth-bailout wrapper: renders children while a session is being restored (or a guest session is allowed), and blocks rendering until auth resolves. Used by rose/media Providers to gate full apps.",
+      "requiresAuth": false,
+      "requiresProviders": ["AuthProvider (context)"],
+      "requiresEnv": ["NEXT_PUBLIC_AUTH_API_URL (optional)"],
+      "apiEndpoints": ["POST /api/auth/guest", "POST /api/auth/token"],
+      "dependencies": ["@machi-asia/auth (AuthProvider)"],
+      "usage": "<AuthGate authApiUrl=\"/api/auth\">{children}</AuthGate>",
+      "notes": ["Children only render after auth state resolves; ensure AuthProvider is above it."]
+    },
+    "useAuth": {
+      "description": "Hook returning { session, user, login, register, guestLogin, logout, loading }. Session includes a JWT accessToken needed for protected API calls.",
+      "requiresAuth": false,
+      "requiresProviders": ["AuthProvider"],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "const { session, login, logout } = useAuth();",
+      "notes": ["session.accessToken is the bearer token for all authenticated APIs."]
+    },
+    "saveTokens": {
+      "description": "Utility: persists access + refresh tokens to localStorage under machi_access_token / machi_refresh_token.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "saveTokens(accessToken, refreshToken);",
+      "notes": []
+    },
+    "loadTokens": {
+      "description": "Utility: reads the persisted token pair from localStorage.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "const { accessToken } = loadTokens();",
+      "notes": []
+    },
+    "clearTokens": {
+      "description": "Utility: removes the persisted token pair from localStorage.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "clearTokens();",
+      "notes": []
+    }
+  }
+}

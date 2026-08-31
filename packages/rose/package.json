@@ -24,6 +24,10 @@
       "types": "./dist/routes/sessions.d.ts",
       "import": "./dist/routes/sessions.js"
     },
+    "./routes/memories": {
+      "types": "./dist/routes/memories.d.ts",
+      "import": "./dist/routes/memories.js"
+    },
     "./routes/*": {
       "types": "./dist/routes/*.d.ts",
       "import": "./dist/routes/*.js"
@@ -41,6 +45,7 @@
     "node": ">=18.18"
   },
   "scripts": {
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'No ESLint configured yet' && exit 0",

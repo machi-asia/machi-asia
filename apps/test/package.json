@@ -1,0 +1,38 @@
+{
+  "name": "test",
+  "version": "0.1.0",
+  "private": true,
+  "description": "test  Edynamic component explorer across all packages in machi-asia monorepo",
+  "scripts": {
+    "dev": "next dev -p 3005",
+    "build": "next build",
+    "start": "next start -p 3005",
+    "lint": "eslint .",
+    "lint:style": "echo 'No style lint configured yet' && exit 0",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "test": "echo 'No tests yet' && exit 0"
+  },
+  "dependencies": {
+    "@machi-asia/api-gateway": "*",
+    "@machi-asia/auth": "*",
+    "@machi-asia/media-library": "*",
+    "@machi-asia/rose": "*",
+    "@machi-asia/ui": "*",
+    "lucide-react": "^1.35.0",
+    "next": "^15.5.23",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.23",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

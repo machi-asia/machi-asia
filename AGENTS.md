@@ -88,3 +88,14 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : `http://localhost:${LOCAL_PORT}`;
 ```
+
+### 8. Database Schema & Migrations via Supabase Skill
+
+Whenever creating or modifying database tables, columns, indexes, permissions, RLS policies, or database functions:
+
+- **Target Correct Supabase Instance**: There may be multiple Supabase MCP servers / projects installed. **ALWAYS** use the MCP instance and database corresponding to **`zyatzdkapdqngwyhiqqn.supabase.co`** (Project Ref: `zyatzdkapdqngwyhiqqn`) for all machi-asia monorepo operations.
+- **Always update the live database**: Use the `/supabase` skill and Supabase MCP tools (`execute_sql`, `apply_migration`) to execute the changes and keep the live database synchronized.
+- **Maintain Migration Files**: Save every schema change as a timestamped migration SQL file in the corresponding package/app `supabase/migrations/` directory (e.g. `packages/rose/supabase/migrations/`).
+- **Permissions & Schema Cache Reload**: Always grant table permissions to `anon`, `authenticated`, and `service_role`, and execute `NOTIFY pgrst, 'reload schema';` so that PostgREST / Supabase API immediately reflects new or altered tables in its schema cache without `PGRST205` errors.
+- **Follow Postgres Best Practices**: Follow the guidelines in the `/supabase-postgres-best-practices` skill for robust column typing, primary keys, foreign keys, indexing, and performant RLS policies.
+

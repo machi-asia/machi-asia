@@ -1,0 +1,45 @@
+{
+  "package": "@machi-asia/media-library",
+  "packageDocs": {
+    "summary": "Media library: upload/list/delete UI backed by /api/media-library/media* route handlers (server-side, require x-gateway-sub header injected by the gateway middleware). Uploads go to Supabase Storage; changes stream over Realtime.",
+    "requiresEnv": [
+      "NEXT_PUBLIC_GATEWAY_URL (optional — when media routes are served via the API gateway)",
+      "NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (Realtime)",
+      "Server-side: SUPABASE_URL, SUPABASE_SERVICE_ROLE_SECRET, MEDIA_STORAGE_BUCKET"
+    ],
+    "requiredRoutes": ["GET|POST /api/media-library/media", "DELETE /api/media-library/media/[id]"],
+    "requiresProviders": ["AuthProvider (required — components read the session token via loadTokens())"]
+  },
+  "components": {
+    "MediaLibraryModal": {
+      "description": "Modal that lists, searches, uploads, and soft-deletes the signed-in user's media. Requires a valid access token (loadTokens()) and mounts Realtime for live updates.",
+      "requiresAuth": true,
+      "requiresProviders": [],
+      "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (Realtime)", "NEXT_PUBLIC_GATEWAY_URL (optional)"],
+      "apiEndpoints": ["GET/POST /api/media-library/media", "DELETE /api/media-library/media/[id]"],
+      "dependencies": ["@machi-asia/ui", "@machi-asia/auth"],
+      "usage": "<MediaLibraryModal isOpen token onClose apiBasePath=\"/api/media-library\" />",
+      "notes": ["apiBasePath resolves via mediaApiBase() — gateway URL or same-origin /api/media-library."]
+    },
+    "MediaPage": {
+      "description": "Standalone page that opens the MediaLibraryModal.",
+      "requiresAuth": true,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": ["@machi-asia/media-library (MediaLibraryModal)"],
+      "usage": "<MediaPage apiBasePath=\"/api/media-library\" />",
+      "notes": []
+    },
+    "Providers": {
+      "description": "Media library app provider: wraps children in @machi-asia/auth AuthGate. Optional authApiUrl prop.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": ["NEXT_PUBLIC_AUTH_API_URL (optional — default same-origin /api/auth)"],
+      "apiEndpoints": [],
+      "dependencies": ["@machi-asia/auth"],
+      "usage": "<Providers authApiUrl=\"/api/auth\">{children}</Providers>",
+      "notes": ["Wrap the whole app once."]
+    }
+  }
+}

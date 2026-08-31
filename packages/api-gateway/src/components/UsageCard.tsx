@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardHeader, CardBody } from "@machi-asia/ui";
 import { getBrowserSupabase } from "../lib/supabase-browser";
 
@@ -12,43 +12,62 @@ interface UsageData {
   remaining: number;
 }
 
-export function UsageCard() {
+const ACCESS_TOKEN_KEY = "machi_access_token";
+const LEGACY_ACCESS_TOKEN_KEY = "access_token";
+
+function readAccessToken(): string {
+  if (typeof window === "undefined") return "";
+  return (
+    window.localStorage.getItem(ACCESS_TOKEN_KEY) ??
+    window.localStorage.getItem(LEGACY_ACCESS_TOKEN_KEY) ??
+    ""
+  );
+}
+
+export interface UsageCardProps {
+  /**
+   * Base URL of the gateway usage endpoint. Defaults to same-origin "/api/usage".
+   * Point this at the host app or gateway that mounts the usage route.
+   */
+  apiBasePath?: string;
+}
+
+export function UsageCard({ apiBasePath = "/api/usage" }: UsageCardProps = {}) {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const channelRef = useRef<ReturnType<ReturnType<typeof getBrowserSupabase>["channel"]> | null>(null);
+  const channelRef = useRef<{ unsubscribe: () => void } | null>(null);
   const week = usage?.week;
+  const cleanBase = apiBasePath.replace(/\/+$/, "");
+
+  const fetchUsage = useCallback(async () => {
+    try {
+      const res = await fetch(`${cleanBase}`, {
+        headers: { Authorization: `Bearer ${readAccessToken()}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setUsage(await res.json());
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load usage");
+    }
+  }, [cleanBase]);
 
   useEffect(() => {
-    async function fetchUsage() {
-      try {
-        const res = await fetch("/api/usage", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""}` },
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        setUsage(await res.json());
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load usage");
-      }
-    }
     fetchUsage();
-  }, []);
+  }, [fetchUsage]);
 
   useEffect(() => {
     if (!week) return;
 
     const supabase = getBrowserSupabase();
+    if (!supabase) return;
     const channel = supabase
       .channel("usage-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "usage_limits" },
         () => {
-          fetch("/api/usage", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""}` },
-          })
-            .then((r) => r.json())
-            .then(setUsage)
-            .catch(() => {});
+          fetchUsage();
         },
       )
       .subscribe();
@@ -59,7 +78,7 @@ export function UsageCard() {
       channel.unsubscribe();
       channelRef.current = null;
     };
-  }, [week]);
+  }, [week, fetchUsage]);
 
   if (error) {
     return (
@@ -116,3 +135,5 @@ export function UsageCard() {
     </Card>
   );
 }
+
+export default UsageCard;

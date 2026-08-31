@@ -80,7 +80,7 @@ export async function POST(
       parts: [{ text: msg.content }],
     }));
 
-    const result = await runAgentChat(history, message);
+    const result = await runAgentChat(history, message, { userId });
 
     const created = await appendMessages(id, [
       { role: "user", content: message },

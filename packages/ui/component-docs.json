@@ -1,0 +1,261 @@
+{
+  "package": "@machi-asia/ui",
+  "packageDocs": {
+    "summary": "Core design system. All components are presentational and render safely without auth, providers, env vars, or API routes. Import the package's stylesheet once in the host app (`@machi-asia/ui/styles.css` or the CSS imported by `src/lib/index.ts`).",
+    "requiresEnv": [],
+    "requiredRoutes": [],
+    "requiresProviders": ["ToastProvider (only when using useToast()/Toast-related components)"]
+  },
+  "components": {
+    "Button": {
+      "description": "Primary interactive button with variant/size/loading/icon support.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Button variant=\"primary\" onClick={..}>Save</Button>",
+      "notes": []
+    },
+    "Card": {
+      "description": "Surface container. CardHeader/CardBody/CardFooter compose a card layout.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Card variant=\"elevated\"><CardHeader title=\"..\" /><CardBody>..</CardBody></Card>",
+      "notes": []
+    },
+    "Accordion": {
+      "description": "Expandable list. Use AccordionItem children with optional allowMultiple.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Accordion allowMultiple><AccordionItem header=\"Q\">A</AccordionItem></Accordion>",
+      "notes": []
+    },
+    "Switch": {
+      "description": "Toggle switch control.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Switch checked={on} onChange={(e) => setOn(e.target.checked)} />",
+      "notes": []
+    },
+    "Tabs": {
+      "description": "Tabbed content switcher (lines or pills variants).",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Tabs items={[{ id, label, content }]} />",
+      "notes": []
+    },
+    "Table": {
+      "description": "Data table with sorting, columns, loading, and empty states.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Table columns={cols} data={rows} rowKey={(r) => r.id} />",
+      "notes": []
+    },
+    "Dropdown": {
+      "description": "Single-select dropdown.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Dropdown value={v} onChange={setV} options={[{ value, label }]} />",
+      "notes": []
+    },
+    "Calendar": {
+      "description": "Standalone month calendar widget.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Calendar />",
+      "notes": []
+    },
+    "AuthModal": {
+      "description": "Login/register/guest auth dialog. Pure presentational: it calls onLogin/onRegister/onOAuthLogin/onGuest callbacks supplied by the host — wire them to @machi-asia/auth's login()/register()/guestLogin() or any backend.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<AuthModal open={open} onClose={..} onLogin={async (c) => auth.login(c.email, c.password)} onGuest={auth.guestLogin} />",
+      "notes": ["Host must implement the submit callbacks; no API is called internally."]
+    },
+    "Modal": {
+      "description": "Accessible overlay dialog with sizes and optional footer.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Modal open={isOpen} onClose={..} title=\"..\">..</Modal>",
+      "notes": []
+    },
+    "Navbar": {
+      "description": "Responsive top navigation bar with nested links and actions.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Navbar brand={..} links={[{ label, href }]} actions={..} />",
+      "notes": []
+    },
+    "Footer": {
+      "description": "Page footer with brand, links, and note.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Footer brand={..} links={[{ label, href }]} />",
+      "notes": []
+    },
+    "Gallery": {
+      "description": "Media grid/list gallery with optional lightbox.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Gallery items={[{ id, src, title }]} columns={3} enableLightbox />",
+      "notes": []
+    },
+    "TextEditor": {
+      "description": "Rich text editor with optional toolbar and markdown export.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<TextEditor value={md} onChange={setMd} />",
+      "notes": []
+    },
+    "ToastProvider": {
+      "description": "Context provider that powers useToast(). Mount at app root. useToast() must be called inside it.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ToastProvider><App /></ToastProvider>",
+      "notes": []
+    },
+    "useToast": {
+      "description": "Hook returning a toast API (show with success/info/warning/error variants). Requires ToastProvider above.",
+      "requiresAuth": false,
+      "requiresProviders": ["ToastProvider"],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "const toast = useToast(); toast.show({ title, description, variant: 'success' });",
+      "notes": []
+    },
+    "ScrollReveal": {
+      "description": "Scroll-driven entrance animation wrapper.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollReveal variant=\"fade-up\">..</ScrollReveal>",
+      "notes": []
+    },
+    "ScrollStack": {
+      "description": "Sticky stacking scroll animation wrapper.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollStack>..</ScrollStack>",
+      "notes": []
+    },
+    "ScrollHorizontal": {
+      "description": "Horizontal scroll-driven section.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollHorizontal>..</ScrollHorizontal>",
+      "notes": []
+    },
+    "Parallax": {
+      "description": "Parallax movement wrapper tied to scroll position.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Parallax speed={0.5}>..</Parallax>",
+      "notes": []
+    },
+    "ScrollZoom": {
+      "description": "Zoom-on-scroll wrapper.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollZoom mode=\"zoom-in\">..</ScrollZoom>",
+      "notes": []
+    },
+    "ScrollCurtain": {
+      "description": "Curtain reveal on scroll.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollCurtain direction=\"left\">..</ScrollCurtain>",
+      "notes": []
+    },
+    "ScrollRotate": {
+      "description": "Rotate-on-scroll wrapper.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollRotate>..</ScrollRotate>",
+      "notes": []
+    },
+    "ScrollSplit": {
+      "description": "Split-on-scroll reveal wrapper.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollSplit direction=\"vertical\">..</ScrollSplit>",
+      "notes": []
+    },
+    "ScrollDepth": {
+      "description": "Depth-of-field style scroll reveal.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ScrollDepth>..</ScrollDepth>",
+      "notes": []
+    }
+  }
+}

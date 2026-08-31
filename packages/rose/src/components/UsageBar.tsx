@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@machi-asia/auth";
 import { getBrowserSupabase } from "../lib/supabase-browser";
+import { roseApiUrl } from "../lib/roseEnv";
 
 interface UsageData {
   week: string;
@@ -30,14 +31,21 @@ const DEFAULT_USAGE: UsageData = {
 
 export interface UsageBarProps {
   usage?: UsageData;
+  /**
+   * Base URL (origin + prefix) of the Rose API. Defaults to the shared
+   * resolution in roseApiBase() — NEXT_PUBLIC_GATEWAY_URL + "/api/rose" when
+   * set, else same-origin "/api/rose". Pass an explicit value only when the
+   * host app mounts the rose routes elsewhere.
+   */
+  apiBasePath?: string;
   onRefreshRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-export function UsageBar({ usage: initialUsage, onRefreshRef }: UsageBarProps = {}) {
+export function UsageBar({ usage: initialUsage, apiBasePath, onRefreshRef }: UsageBarProps = {}) {
   const { session } = useAuth();
   const [usage, setUsage] = useState<UsageData>(initialUsage ?? DEFAULT_USAGE);
   const [loaded, setLoaded] = useState(Boolean(initialUsage));
-  const channelRef = useRef<ReturnType<ReturnType<typeof getBrowserSupabase>["channel"]> | null>(null);
+  const channelRef = useRef<{ unsubscribe: () => void } | null>(null);
 
   const userId = session?.user.id ?? null;
 
@@ -51,8 +59,7 @@ export function UsageBar({ usage: initialUsage, onRefreshRef }: UsageBarProps = 
   const fetchUsage = useCallback(async () => {
     if (!userId || !session?.accessToken) return;
     try {
-      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "";
-      const res = await fetch(`${gatewayUrl}/api/rose/usage`, {
+      const res = await fetch(roseApiUrl("usage", apiBasePath), {
         headers: { Authorization: `Bearer ${session.accessToken}` },
       });
       if (!res.ok) return;
@@ -63,7 +70,7 @@ export function UsageBar({ usage: initialUsage, onRefreshRef }: UsageBarProps = 
       // usage bar is non-critical; show default state
       setLoaded(true);
     }
-  }, [userId, session?.accessToken]);
+  }, [userId, session?.accessToken, apiBasePath]);
 
   useEffect(() => {
     if (onRefreshRef) {
@@ -79,6 +86,7 @@ export function UsageBar({ usage: initialUsage, onRefreshRef }: UsageBarProps = 
     if (!userId || !session?.accessToken) return;
 
     const supabase = getBrowserSupabase(session.accessToken);
+    if (!supabase) return;
     const channel = supabase
       .channel(`rose-usage-${userId}`)
       .on(

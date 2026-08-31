@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { User } from "lucide-react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { ChatbotOptionsPicker, type OptionsPayload } from "./ChatbotOptionsPicker";
 import { ChatbotTraces } from "./ChatbotTraces";
@@ -19,7 +20,7 @@ export interface RoseMessage {
   optionsPayload?: OptionsPayload;
 }
 
-export interface RoseChatProps {
+export interface ChatProps {
   messages: RoseMessage[];
   onOptionSelect?: (option: string) => void;
   onSelectStarter?: (query: string) => void;
@@ -28,6 +29,8 @@ export interface RoseChatProps {
   currentEmotion?: string;
   traces?: string[];
   avatarUrl?: string;
+  userAvatarUrl?: string;
+  userName?: string;
   welcomeTitle?: string;
   welcomeSubtitle?: string;
   welcomeStarters?: StarterItem[];
@@ -37,7 +40,17 @@ export interface RoseChatProps {
   className?: string;
 }
 
+export type RoseChatProps = ChatProps;
+
 const DEFAULT_AVATAR = "/rose/happy.png";
+
+function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length > 1) {
+    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
+  }
+  return words[0].slice(0, 2).toUpperCase();
+}
 
 function resolveMessageVariant(msg: RoseMessage): "default" | "error" | "warning" {
   if (msg.variant === "error" || msg.variant === "warning") return msg.variant;
@@ -75,13 +88,15 @@ export function Chat({
   currentEmotion = "happy",
   traces = [],
   avatarUrl,
+  userAvatarUrl,
+  userName = "User",
   welcomeTitle,
   welcomeSubtitle,
   welcomeStarters,
   welcomeBadges,
   welcomeQuickCommands,
   className = "chat-messages",
-}: RoseChatProps) {
+}: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -128,7 +143,7 @@ export function Chat({
           >
             {msg.role === "model" && (
               <div
-                className={`chatbot-msg-avatar ${
+                className={`chatbot-msg-avatar model-avatar ${
                   variant === "error"
                     ? "avatar--error"
                     : variant === "warning"
@@ -136,15 +151,32 @@ export function Chat({
                     : ""
                 }`}
               >
+                {/* eslint-disable-next-line @next/next/no-img-element -- static avatar asset */}
                 <img
-                  src={ROSE_EMOTIONS[msg.emotion || currentEmotion] || DEFAULT_AVATAR}
+                  src={ROSE_EMOTIONS[msg.emotion || currentEmotion] || avatarUrl || DEFAULT_AVATAR}
                   alt="Rose"
                   className="chatbot-avatar-img"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.style.display = "none";
+                    const fallback = target.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
                 />
+                <div className="chatbot-avatar-fallback" style={{ display: "none" }}>
+                  🌸
+                </div>
               </div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", maxWidth: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                maxWidth: "100%",
+                alignItems: msg.role === "user" ? "flex-end" : "flex-start",
+              }}
+            >
               <div
                 className={`chatbot-msg ${
                   msg.role === "user" ? "chatbot-msg-user" : "chatbot-msg-model"
@@ -165,25 +197,60 @@ export function Chat({
                 />
               )}
             </div>
+
+            {msg.role === "user" && (
+              <div className="chatbot-msg-avatar user-avatar">
+                {userAvatarUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- user dynamic pfp */
+                  <img
+                    src={userAvatarUrl}
+                    alt={userName || "User"}
+                    className="chatbot-avatar-img"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.style.display = "none";
+                      const fallback = target.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="chatbot-user-avatar-fallback"
+                  style={{ display: userAvatarUrl ? "none" : "flex" }}
+                >
+                  {userName && userName !== "User" ? initialsOf(userName) : <User size={18} />}
+                </div>
+              </div>
+            )}
           </div>
         );
       })}
 
       {isLoading && (
         <div className="chatbot-msg-container model-container">
-          <div className="chatbot-msg-avatar">
+          <div className="chatbot-msg-avatar model-avatar">
+            {/* eslint-disable-next-line @next/next/no-img-element -- static avatar asset */}
             <img
-              src={ROSE_EMOTIONS["thinking"] || DEFAULT_AVATAR}
+              src={ROSE_EMOTIONS["thinking"] || avatarUrl || DEFAULT_AVATAR}
               alt="Rose"
               className="chatbot-avatar-img"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                target.style.display = "none";
+                const fallback = target.nextElementSibling as HTMLElement | null;
+                if (fallback) fallback.style.display = "flex";
+              }}
             />
+            <div className="chatbot-avatar-fallback" style={{ display: "none" }}>
+              🌸
+            </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", maxWidth: "100%" }}>
             <div className="chatbot-msg chatbot-msg-model chatbot-msg-loading">
               <ChatbotTraces
                 traces={traces.length > 0 ? traces : ["thinking"]}
                 defaultExpanded={true}
-                photoUrl={ROSE_EMOTIONS["thinking"] || DEFAULT_AVATAR}
+                photoUrl={ROSE_EMOTIONS["thinking"] || avatarUrl || DEFAULT_AVATAR}
               />
               <div className="typing-indicator" style={{ marginTop: "0.4rem" }}>
                 <div className="typing-dot" />

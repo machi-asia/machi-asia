@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { Button } from "@machi-asia/ui";
 import { MediaLibraryModal } from "./MediaLibraryModal";
+import type { MediaLibraryModalProps } from "./MediaLibraryModal";
 
-export function MediaPage() {
+export type MediaPageProps = Pick<MediaLibraryModalProps, "apiBasePath" | "gatewayUrl">;
+
+export function MediaPage({ apiBasePath, gatewayUrl }: MediaPageProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -19,6 +22,8 @@ export function MediaPage() {
       <MediaLibraryModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        apiBasePath={apiBasePath}
+        gatewayUrl={gatewayUrl}
       />
     </main>
   );

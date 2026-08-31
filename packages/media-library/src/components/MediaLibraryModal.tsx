@@ -10,6 +10,8 @@ import {
   type GalleryItem,
   type TableColumn,
 } from "@machi-asia/ui";
+import { loadTokens } from "@machi-asia/auth";
+import { mediaApiSubpath, isMediaSupabaseConfigured } from "../lib/env";
 
 interface MediaRecord {
   id: string;
@@ -25,6 +27,17 @@ interface MediaRecord {
 export interface MediaLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /**
+   * Base URL (origin + "/api/media-library") of the media API. Defaults to the
+   * shared resolution in mediaApiBase() — NEXT_PUBLIC_GATEWAY_URL when set,
+   * else same-origin "/api/media-library".
+   */
+  apiBasePath?: string;
+  /**
+   * @deprecated Prefer `apiBasePath`. Kept for backward compatibility: if both
+   * are provided, `apiBasePath` wins.
+   */
+  gatewayUrl?: string;
 }
 
 function formatFileSize(bytes: number): string {
@@ -42,8 +55,6 @@ function formatDate(iso: string): string {
   });
 }
 
-import { loadTokens } from "@machi-asia/auth";
-
 function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
   return loadTokens()?.accessToken ?? null;
@@ -52,6 +63,8 @@ function getAuthToken(): string | null {
 export function MediaLibraryModal({
   isOpen,
   onClose,
+  apiBasePath,
+  gatewayUrl,
 }: MediaLibraryModalProps) {
   const [items, setItems] = useState<MediaRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,17 +75,16 @@ export function MediaLibraryModal({
   );
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const channelRef = useRef<ReturnType<
-    ReturnType<typeof import("@supabase/supabase-js").createClient>["channel"]
-  > | null>(null);
+  const channelRef = useRef<{ unsubscribe: () => void } | null>(null);
+
+  const base = mediaApiSubpath("media", apiBasePath ?? gatewayUrl);
 
   const fetchMedia = useCallback(async () => {
     const token = getAuthToken();
     if (!token) return;
     setLoading(true);
     try {
-      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "";
-      const res = await fetch(`${gatewayUrl}/api/media-library/media`, {
+      const res = await fetch(base, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return;
@@ -83,7 +95,7 @@ export function MediaLibraryModal({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [base]);
 
   useEffect(() => {
     if (isOpen) fetchMedia();
@@ -93,12 +105,12 @@ export function MediaLibraryModal({
     if (!isOpen) return;
 
     const token = getAuthToken();
-    if (!token) return;
+    if (!token || !isMediaSupabaseConfigured()) return;
 
     const supabaseUrl =
-      process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string;
     const anonKey =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 
     import("@supabase/supabase-js").then(
       ({ createClient }) => {
@@ -166,8 +178,7 @@ export function MediaLibraryModal({
       const formData = new FormData();
       formData.append("file", file);
 
-      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "";
-      const res = await fetch(`${gatewayUrl}/api/media-library/media`, {
+      const res = await fetch(base, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -190,8 +201,7 @@ export function MediaLibraryModal({
 
     setDeleteId(null);
     try {
-      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "";
-      const res = await fetch(`${gatewayUrl}/api/media-library/media/${id}`, {
+      const res = await fetch(`${base}/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

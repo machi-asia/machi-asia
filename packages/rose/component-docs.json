@@ -1,0 +1,172 @@
+{
+  "package": "@machi-asia/rose",
+  "packageDocs": {
+    "summary": "Rose AI Companion: chat UI, agent runner, sessions, memories, and usage components. API-backed components call /api/rose/* route handlers (mounted by apps/rose and apps/test) and require an authenticated session. All API URLs resolve through roseApiBase()/NEXT_PUBLIC_GATEWAY_URL — if your host mounts rose routes elsewhere, pass the apiBasePath prop.",
+    "requiresEnv": [
+      "NEXT_PUBLIC_GATEWAY_URL (optional — when rose routes are served via the API gateway)",
+      "NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (for Realtime usage updates)",
+      "Server-side (route handlers): SUPABASE_URL, SUPABASE_SERVICE_ROLE_SECRET, GEMINI_API_KEY, GEMINI_MODEL, ROSE_* usage limits"
+    ],
+    "requiredRoutes": [
+      "POST /api/rose/chat",
+      "GET /api/rose/usage",
+      "GET|POST /api/rose/sessions",
+      "GET|PATCH|DELETE /api/rose/sessions/[id]",
+      "POST /api/rose/sessions/[id]/chat",
+      "GET|POST /api/rose/memories",
+      "PATCH|DELETE /api/rose/memories/[id]"
+    ],
+    "requiresProviders": ["AuthProvider (required by all API-backed components)"],
+    "assets": ["/rose/*.png — copy the rose assets folder into the host app's public/ directory (or set avatarUrl/image props)."]
+  },
+  "components": {
+    "RoseChat": {
+      "description": "Full chat application: session sidebar, chat pane, usage bar, memories modal trigger, and optional inline AuthModal (requireAuth=true). Integrates Chat + UsageBar + MemoriesSettingsModal automatically.",
+      "requiresAuth": true,
+      "requiresProviders": ["AuthProvider", "ToastProvider (recommended)"],
+      "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL (realtime)", "NEXT_PUBLIC_SUPABASE_ANON_KEY (realtime)", "NEXT_PUBLIC_GATEWAY_URL (optional)"],
+      "apiEndpoints": ["POST /api/rose/chat", "GET /api/rose/usage", "GET/POST /api/rose/sessions", "GET/PATCH/DELETE /api/rose/sessions/[id]", "POST /api/rose/sessions/[id]/chat", "GET/POST /api/rose/memories", "PATCH/DELETE /api/rose/memories/[id]"],
+      "dependencies": ["@machi-asia/auth", "@machi-asia/ui"],
+      "usage": "<RoseChat apiBasePath=\"/api/rose\" requireAuth showUsage showMemories />",
+      "notes": ["Copy the /rose/* assets into host public/ or set avatarUrl.", "apiBasePath resolves via roseApiBase() by default."]
+    },
+    "Chat": {
+      "description": "Presentational chat bubble view (messages, avatars, emotions, options, traces). No API calls.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<Chat messages={msgs} isLoading={false} avatarUrl=\"/rose/happy.png\" userName=\"You\" />",
+      "notes": ["Defaults to /rose/happy.png — set avatarUrl if assets differ."]
+    },
+    "UsageBar": {
+      "description": "Shows today/weekly usage against limits and updates live via supabase Realtime. Fetches GET /api/rose/usage with the session bearer token.",
+      "requiresAuth": true,
+      "requiresProviders": ["AuthProvider"],
+      "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (Realtime; skips gracefully when unset)"],
+      "apiEndpoints": ["GET /api/rose/usage"],
+      "dependencies": ["@machi-asia/auth"],
+      "usage": "<UsageBar usage={initial} apiBasePath=\"/api/rose\" />",
+      "notes": ["Ships the rose-package usage-bar styles; see styles.css."]
+    },
+    "RoseChatModal": {
+      "description": "Compound, shippable modal wrapper around RoseChat. RoseChatModalProvider wraps the app and shares a single open/close state via context; RoseChatModal renders the full-screen overlay containing RoseChat, and RoseChatModalActionButton / RoseChatModalFloatingButton open that same modal (never a duplicate instance). Sidebar and header visibility are configurable via the RoseChat props it forwards.",
+      "requiresAuth": true,
+      "requiresProviders": ["AuthProvider", "ToastProvider (recommended)"],
+      "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL (realtime)", "NEXT_PUBLIC_SUPABASE_ANON_KEY (realtime)", "NEXT_PUBLIC_GATEWAY_URL (optional)"],
+      "apiEndpoints": ["POST /api/rose/chat", "GET /api/rose/usage", "GET/POST /api/rose/sessions", "GET/PATCH/DELETE /api/rose/sessions/[id]", "POST /api/rose/sessions/[id]/chat", "GET/POST /api/rose/memories", "PATCH/DELETE /api/rose/memories/[id]"],
+      "dependencies": ["@machi-asia/auth", "@machi-asia/ui"],
+      "usage": "<RoseChatModalProvider><RoseChatModalActionButton label=\"Chat with Rose\" /><RoseChatModalFloatingButton /><RoseChatModal showSidebar={false} showHeader={true} /></RoseChatModalProvider>",
+      "notes": ["All triggers/overlay share one context — mount at most one RoseChatModalProvider (and one RoseChatModal) per tree.", "Copy the /rose/* assets into host public/ or set avatarUrl.", "Styles ship in @machi-asia/rose/styles.css."]
+    },
+    "MemoriesSettingsModal": {
+      "description": "CRUD modal for long-term memories (list/search/add/edit/delete) via /api/rose/memories*. Needs an access token (pass token prop or use inside an AuthProvider session).",
+      "requiresAuth": true,
+      "requiresProviders": ["AuthProvider (for session token)"],
+      "requiresEnv": [],
+      "apiEndpoints": ["GET/POST /api/rose/memories", "PATCH/DELETE /api/rose/memories/[id]"],
+      "dependencies": [],
+      "usage": "<MemoriesSettingsModal isOpen token={session.accessToken} apiBasePath=\"/api/rose\" onClose={..} />",
+      "notes": []
+    },
+    "Providers": {
+      "description": "Rose app provider: wraps children in @machi-asia/auth AuthGate so unauthenticated visitors are blocked while auth resolves. Optional authApiUrl prop.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": ["NEXT_PUBLIC_AUTH_API_URL (optional — default same-origin /api/auth)"],
+      "apiEndpoints": [],
+      "dependencies": ["@machi-asia/auth"],
+      "usage": "<Providers authApiUrl=\"/api/auth\">{children}</Providers>",
+      "notes": ["Wrap the whole app once."]
+    },
+    "MarkdownRenderer": {
+      "description": "Renders markdown/rich content with link/media/emotion support. Pure presentational.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<MarkdownRenderer content=\"# Hello\" />",
+      "notes": []
+    },
+    "ChatbotInputArea": {
+      "description": "Chat input with files/badges/slash-menu integration. Pure UI; forward input state via props.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotInputArea inputValue={v} setInputValue={setV} showSlashMenu onSendMessage={(t) => send(t)} />",
+      "notes": []
+    },
+    "ChatbotInputBadge": {
+      "description": "Renders a removable context badge (@project / @skill tokens).",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotInputBadge badge={badge} onRemove={(id) => ..} />",
+      "notes": []
+    },
+    "ChatbotSlashMenu": {
+      "description": "Slash-command menu filtered by input, driven by DEFAULT_COMMAND_CATEGORIES.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotSlashMenu categories={Rose.DEFAULT_COMMAND_CATEGORIES} inputValue=\"/\" onSelectItem={..} />",
+      "notes": []
+    },
+    "ChatbotTraces": {
+      "description": "Collapsible list of agent traces/thinking steps.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotTraces traces={[\"step\"]} defaultExpanded photoUrl=\"/rose/thinking.png\" />",
+      "notes": []
+    },
+    "ChatbotOptionsPicker": {
+      "description": "Renders the model's multiple-choice question + selectable options.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotOptionsPicker payload={{ question, options, allowMultiple }} onSelectOption={..} />",
+      "notes": []
+    },
+    "ChatbotWelcome": {
+      "description": "Welcome screen with starter prompts, quick commands, and reference badges.",
+      "requiresAuth": false,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": [],
+      "usage": "<ChatbotWelcome onSelectStarter={(q) => ..} />",
+      "notes": []
+    }
+  },
+  "utilities": {
+    "roseApiBase": {
+      "description": "Resolves the rose API base: explicit arg > NEXT_PUBLIC_GATEWAY_URL + /api/rose > /api/rose. Use to keep all rose calls consistent.",
+      "usage": "roseApiBase(\"/api/rose\")"
+    },
+    "roseApiUrl": {
+      "description": "Resolves a path against the rose API base, e.g. roseApiUrl(\"sessions\") -> /api/rose/sessions.",
+      "usage": "roseApiUrl(\"usage\")"
+    },
+    "roseGatewayUrl": {
+      "description": "Returns the trimmed NEXT_PUBLIC_GATEWAY_URL or empty string.",
+      "usage": "roseGatewayUrl()"
+    },
+    "isBrowserSupabaseConfigured": {
+      "description": "True when NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY are set.",
+      "usage": "if (isBrowserSupabaseConfigured()) { ... }"
+    }
+  }
+}

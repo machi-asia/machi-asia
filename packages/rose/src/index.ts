@@ -1,8 +1,18 @@
+export { RoseChat } from "./components/RoseChat";
+export type {
+  RoseChatProps as FullRoseChatProps,
+  RoseChatProps as RoseChatAppProps,
+  SessionRow,
+  StoredMessage,
+  SessionChatResponse,
+} from "./components/RoseChat";
 export { Chat } from "./components/Chat";
-export type { RoseChatProps, RoseMessage, RoseOptionPayload } from "./components/Chat";
-export { ChatInterface } from "./components/ChatInterface";
+export type { ChatProps, RoseChatProps, RoseMessage, RoseOptionPayload } from "./components/Chat";
 export { UsageBar } from "./components/UsageBar";
+export type { UsageBarProps } from "./components/UsageBar";
 export { Providers } from "./components/Providers";
+export type { RoseProvidersProps } from "./components/Providers";
+export { roseGatewayUrl, roseApiBase, roseApiUrl, isBrowserSupabaseConfigured } from "./lib/roseEnv";
 export { MarkdownRenderer } from "./components/MarkdownRenderer";
 export type { MarkdownRendererProps } from "./components/MarkdownRenderer";
 export { ChatbotInputArea } from "./components/ChatbotInputArea";
@@ -61,12 +71,41 @@ export {
   registerTool,
   getToolByName,
   webSearchTool,
+  takeNotesTool,
   calculatorTool,
   codeAnalyzerTool,
   askQuestionTool,
   delegateToSpecialistTool,
 } from "./lib/tools";
-export type { Tool } from "./lib/tools";
+export type { Tool, ToolContext } from "./lib/tools";
+
+export {
+  listMemories,
+  addMemory,
+  updateMemory,
+  deleteMemory,
+  formatMemoriesForPrompt,
+  fetchMemoriesClient,
+  createMemoryClient,
+  updateMemoryClient,
+  deleteMemoryClient,
+} from "./lib/memoryStore";
+export type { RoseMemory, NewRoseMemory, UpdateRoseMemory } from "./lib/memoryStore";
+export { MemoriesSettingsModal } from "./components/MemoriesSettingsModal";
+export type { MemoriesSettingsModalProps } from "./components/MemoriesSettingsModal";
+
+export {
+  RoseChatModalProvider,
+  RoseChatModal,
+  RoseChatModalActionButton,
+  RoseChatModalFloatingButton,
+} from "./components/RoseChatModal";
+export type {
+  RoseChatModalProviderProps,
+  RoseChatModalProps,
+  RoseChatModalActionButtonProps,
+  RoseChatModalFloatingButtonProps,
+} from "./components/RoseChatModal";
 
 export {
   currentWeek,

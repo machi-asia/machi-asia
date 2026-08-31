@@ -3,11 +3,13 @@ import { TOOLS, Tool, getToolByName } from "./tools";
 import { ROSE_EMOTIONS, extractEmotion } from "./roseEmotions";
 import { Specialist, invokeSpecialist } from "./specialists";
 import { formatErrorMessage } from "./errorFormatter";
+import { listMemories, formatMemoriesForPrompt } from "./memoryStore";
 
 export { ROSE_EMOTIONS, extractEmotion };
 
 export const DEFAULT_TOOL_LABEL_MAP: Record<string, string> = {
   webSearch: "searching the web",
+  takeNotes: "remembering note",
   calculator: "calculating",
   codeAnalyzer: "analyzing code",
   askQuestion: "asking interactive question",
@@ -18,13 +20,19 @@ export const DEFAULT_AGENT_SYSTEM_INSTRUCTION = `You are "Rose", an intelligent,
 Your goals:
 1. Help users answer questions, solve problems, analyze code, and search for up-to-date information.
 2. Engage thoughtfully and deliver clear, well-structured, visually appealing responses.
+3. Maintain continuity and remember important user information across different conversations.
 
 Capabilities & Tools:
 - 'webSearch': Search the web for up-to-date facts, documentation, or news.
+- 'takeNotes': Save important personal facts, preferences, constraints, background, habits, project details, or user requests to your permanent long-term memory across all chat sessions.
 - 'calculator': Evaluate mathematical and numerical formulas accurately.
 - 'codeAnalyzer': Inspect, debug, refactor, and explain code snippets.
 - 'askQuestion': MANDATORY — you MUST use this tool whenever you want to present a list of options, choices, or interactive follow-up questions to the user. This renders clickable option buttons in the chat interface so the user can answer with one click.
 - 'delegateToSpecialist': Delegate domain-specific tasks to registered specialist sub-agents.
+
+Long-Term Memory Rules:
+- Proactively call 'takeNotes' whenever the user shares important personal details, identity, preferences, technical stacks, project constraints, habits, or explicitly asks you to remember something ('remember that...', 'keep in mind that...').
+- Always take notes concisely and accurately so future conversations can naturally recall them.
 
 - When an entity reference badge is present in the user prompt (e.g. @tool:"...", @specialist:"...", @topic:"..."), reference that entity directly and respond accordingly.
 
@@ -83,6 +91,8 @@ export interface RunAgentResult {
 }
 
 export interface AgentChatOptions {
+  userId?: string;
+  memoriesPrompt?: string;
   systemInstruction?: string;
   tools?: Tool[];
   specialists?: Record<string, Specialist>;
@@ -116,10 +126,25 @@ export async function runAgentChat(
   }
 
   const activeTools = options?.tools || TOOLS;
-  const systemInstruction = options?.systemInstruction || DEFAULT_AGENT_SYSTEM_INSTRUCTION;
+  let baseSystemInstruction = options?.systemInstruction || DEFAULT_AGENT_SYSTEM_INSTRUCTION;
+
+  // Inject long-term memories if available or fetch for user
+  let memoriesBlock = options?.memoriesPrompt;
+  if (!memoriesBlock && options?.userId) {
+    try {
+      const storedMemories = await listMemories(options.userId);
+      memoriesBlock = formatMemoriesForPrompt(storedMemories);
+    } catch {
+      memoriesBlock = "";
+    }
+  }
+
+  if (memoriesBlock) {
+    baseSystemInstruction = `${baseSystemInstruction}\n\n${memoriesBlock}`;
+  }
+
   const toolLabelMap = { ...DEFAULT_TOOL_LABEL_MAP, ...(options?.toolLabelMap || {}) };
   const customSpecialists = options?.specialists;
-
   const toolDeclarations = activeTools.map((t) => t.declaration);
 
   let loopCount = 0;
@@ -132,7 +157,7 @@ export async function runAgentChat(
       let responseJson: any;
       try {
         responseJson = await callGemini(
-          systemInstruction,
+          baseSystemInstruction,
           activeHistory,
           toolDeclarations
         );
@@ -231,6 +256,8 @@ export async function runAgentChat(
           let traceLabel = toolLabelMap[fnName] || `calling ${fnName}`;
           if (fnName === "delegateToSpecialist" && fnArgs.specialist) {
             traceLabel = `consulting specialist (${fnArgs.specialist})`;
+          } else if (fnName === "takeNotes") {
+            traceLabel = "remembering note";
           }
 
           addTrace(traceLabel);
@@ -248,7 +275,7 @@ export async function runAgentChat(
             const toolObj = getToolByName(fnName, activeTools);
             if (toolObj) {
               try {
-                resultJsonString = await toolObj.execute(fnArgs);
+                resultJsonString = await toolObj.execute(fnArgs, { userId: options?.userId });
               } catch (err: any) {
                 resultJsonString = JSON.stringify({ error: err?.message || "Tool execution failed" });
               }
@@ -352,6 +379,8 @@ export function createAgentRunner(defaultOptions: AgentChatOptions) {
     overrideOptions?: AgentChatOptions
   ) => {
     const mergedOptions: AgentChatOptions = {
+      userId: overrideOptions?.userId || defaultOptions.userId,
+      memoriesPrompt: overrideOptions?.memoriesPrompt || defaultOptions.memoriesPrompt,
       systemInstruction: overrideOptions?.systemInstruction || defaultOptions.systemInstruction,
       tools: overrideOptions?.tools || defaultOptions.tools,
       specialists: { ...(defaultOptions.specialists || {}), ...(overrideOptions?.specialists || {}) },

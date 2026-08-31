@@ -34,7 +34,8 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "next dev playground",
+    "dev": "concurrently \"vite build --watch\" \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\"",
+    "dev:playground": "next dev playground",
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/inject-css.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'No ESLint configured yet' && exit 0",
@@ -56,6 +57,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.7.0",
+    "concurrently": "^9.2.1",
     "jsdom": "^30.0.1",
     "next": "^15.5.23",
     "react": "^19.2.8",

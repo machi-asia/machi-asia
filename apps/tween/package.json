@@ -2,14 +2,14 @@
   "name": "tween",
   "version": "0.1.0",
   "private": true,
-  "description": "tween — a web page builder where scroll-driven motion is a setting, not a plugin.",
+  "description": "tween  Ea web page builder where scroll-driven motion is a setting, not a plugin.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:style": "echo 'No style lint configured yet' && exit 0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {

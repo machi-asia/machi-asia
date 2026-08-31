@@ -2,14 +2,14 @@
   "name": "rose",
   "version": "0.1.0",
   "private": true,
-  "description": "Rose — a general-purpose AI companion powered by Google Gemini, with chat sessions, login, and usage limits.",
+  "description": "Rose  Ea general-purpose AI companion powered by Google Gemini, with chat sessions, login, and usage limits.",
   "scripts": {
     "dev": "next dev -p 5000",
     "build": "next build",
     "start": "next start -p 5000",
     "lint": "eslint .",
     "lint:style": "echo 'No style lint configured yet' && exit 0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {

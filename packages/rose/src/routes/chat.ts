@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     const history: ChatMessage[] = Array.isArray(body.history) ? body.history : [];
 
-    const result = await runAgentChat(history, body.message);
+    const result = await runAgentChat(history, body.message, { userId });
 
     return NextResponse.json({
       text: result.text,

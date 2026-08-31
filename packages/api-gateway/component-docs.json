@@ -1,0 +1,31 @@
+{
+  "package": "@machi-asia/api-gateway",
+  "packageDocs": {
+    "summary": "API gateway: JWT-verifying usage endpoints, gateway proxy middleware, and usage UI. Components read the bearer token from the auth token store (machi_access_token) and call the usage endpoint — mount GET /api/usage as a route handler and protect it with the gateway middleware.",
+    "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (Realtime)", "Server-side: SUPABASE_URL, SUPABASE_SERVICE_ROLE_SECRET, WEEKLY_USAGE_LIMIT"],
+    "requiredRoutes": ["GET /api/usage (protected)", "GET /api/health"],
+    "requiresProviders": ["AuthProvider (recommended — supplies the session token; otherwise tokens must already exist in localStorage)"]
+  },
+  "components": {
+    "UsageCard": {
+      "description": "Displays weekly API usage with a progress bar; refreshes over HTTP and live via Realtime INSERT events on usage_limits. Sends the bearer token from machi_access_token/access_token localStorage.",
+      "requiresAuth": true,
+      "requiresProviders": [],
+      "requiresEnv": ["NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (Realtime; skips gracefully when unset)"],
+      "apiEndpoints": ["GET /api/usage"],
+      "dependencies": ["@machi-asia/ui"],
+      "usage": "<UsageCard apiBasePath=\"/api/usage\" />",
+      "notes": ["Uses apiBasePath default /api/usage."]
+    },
+    "UsagePage": {
+      "description": "Page wrapper around UsageCard.",
+      "requiresAuth": true,
+      "requiresProviders": [],
+      "requiresEnv": [],
+      "apiEndpoints": [],
+      "dependencies": ["@machi-asia/api-gateway (UsageCard)"],
+      "usage": "<UsagePage />",
+      "notes": []
+    }
+  }
+}
