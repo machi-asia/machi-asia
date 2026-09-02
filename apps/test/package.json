@@ -18,19 +18,19 @@
     "@machi-asia/media-library": "*",
     "@machi-asia/rose": "*",
     "@machi-asia/ui": "*",
-    "lucide-react": "^1.35.0",
-    "next": "^15.5.23",
+    "lucide-react": "^1.37.0",
+    "next": "^16.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "^15.5.23",
-    "typescript": "^5.9.3"
+    "eslint": "^10.9.1",
+    "eslint-config-next": "^16.3.3",
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=18.18"
