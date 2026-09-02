@@ -40,7 +40,7 @@
     "@machi-asia/ui": "*",
     "@supabase/supabase-js": "^2.112.4",
     "jose": "^6.1.0",
-    "zod": "^4.2.1"
+    "zod": "^4.5.4"
   },
   "peerDependencies": {
     "next": "^15.0.0",
@@ -49,15 +49,15 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "jest": "^30.4.2",
+    "jest": "^30.5.0",
     "jest-environment-node": "^30.4.1",
-    "next": "^15.5.23",
+    "next": "^16.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "ts-jest": "^29.4.0",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }
